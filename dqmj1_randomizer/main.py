@@ -30,7 +30,7 @@ class Main(wx.Frame):
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((532, 328))
-        self.SetTitle("DQMJ Unofficial Randomizer")
+        self.SetTitle("DQMJ1 Unofficial Randomizer")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
