@@ -1,6 +1,8 @@
 # DQMJ1 Unofficial Randomizer
 An unofficial randomizer for *Dragon Quest Monsters: Joker 1* for the Nintendo DS.
 
+![Screenshot of the randomizer GUI](img/screenshot.png)
+
 ## Download
 Download the latest release of DQMJ1 Unofficial Randomizer for your operating system at the link below:
 
