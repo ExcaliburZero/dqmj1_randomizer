@@ -170,6 +170,12 @@ class Main(wx.Frame):
                     logging.error(
                         f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
                     )
+
+                wx.MessageBox(
+                    f"Sucessfully wrote randomized ROM to: {output_rom_filepath}",
+                    "Success",
+                    wx.OK | wx.ICON_INFORMATION,
+                )
             except Exception as e:
                 logging.exception(e)
                 logging.error(
