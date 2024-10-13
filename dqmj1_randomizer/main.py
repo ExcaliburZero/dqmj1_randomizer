@@ -84,6 +84,9 @@ class Main(wx.Frame):
         self.checkbox_monsters_include_bosses = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include bosses"
         )
+        self.state.monsters.include_bosses = (
+            self.checkbox_monsters_include_bosses.GetValue() == 1
+        )
         grid_sizer_2.Add(self.checkbox_monsters_include_bosses, 0, 0, 0)
 
         self.checkbox_monsters_include_starters = wx.CheckBox(
@@ -94,9 +97,6 @@ class Main(wx.Frame):
             self.checkbox_monsters_include_starters.GetValue() == 1
         )
         grid_sizer_2.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
-
-        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, wx.ID_ANY)
-        self.notebook_1.AddPage(self.notebook_1_pane_2, "new tab")
 
         self.button_1 = wx.Button(self.panel_1, wx.ID_ANY, "Randomize!")
         sizer_1.Add(self.button_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 10)
@@ -110,6 +110,11 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_include_bosses,
+            self.checkbox_monsters_include_bosses,
+        )
         self.Bind(
             wx.EVT_CHECKBOX,
             self.changed_monsters_include_starters,
@@ -177,6 +182,13 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.include_starters = raw_value == 1
+
+    def changed_monsters_include_bosses(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_include_bosses.GetValue()
+        logging.info(f"User set monsters include bosses: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.include_bosses = raw_value == 1
 
 
 # end of class Main

@@ -109,6 +109,12 @@ def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) 
             if data["is_starter"][i] != "y"
         ]
 
+    assert state.monsters.include_bosses is not None
+    if not state.monsters.include_bosses:
+        entries_to_shuffle = [
+            (i, entry) for (i, entry) in entries_to_shuffle if data["is_boss"][i] != "y"
+        ]
+
     logging.info(
         f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
     )

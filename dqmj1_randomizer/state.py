@@ -6,6 +6,7 @@ import pathlib
 
 @dataclass
 class Monsters:
+    include_bosses: Optional[bool] = None
     include_starters: Optional[bool] = None
 
 
