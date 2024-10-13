@@ -15,6 +15,9 @@ data_path = pathlib.Path(os.path.realpath(__file__)) / ".." / "data"
 
 
 def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
+    logging.info(f"output_rom_filepath={output_rom_filepath}")
+    logging.info(f"state={state}")
+
     original_rom = state.original_rom
 
     if original_rom is None:
@@ -95,6 +98,14 @@ def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) 
     entries_to_shuffle = [
         (i, entry) for (i, entry) in entries_to_shuffle if data["exclude"][i] != "y"
     ]
+
+    assert state.monsters.include_starters is not None
+    if not state.monsters.include_starters:
+        entries_to_shuffle = [
+            (i, entry)
+            for (i, entry) in entries_to_shuffle
+            if data["is_starter"][i] != "y"
+        ]
 
     logging.info(
         f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."

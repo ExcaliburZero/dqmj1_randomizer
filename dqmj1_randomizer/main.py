@@ -67,6 +67,7 @@ class Main(wx.Frame):
 
         self.input_seed = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         self.input_seed.SetValue(str(random.randint(0, (2**32) - 1)))
+        self.state.seed = int(self.input_seed.GetValue())
         grid_sizer_1.Add(self.input_seed, 0, 0, 0)
 
         self.notebook_1 = wx.Notebook(self.panel_1, wx.ID_ANY)
@@ -89,6 +90,9 @@ class Main(wx.Frame):
             self.monsters_tab, wx.ID_ANY, "Include starters"
         )
         self.checkbox_monsters_include_starters.SetValue(1)
+        self.state.monsters.include_starters = (
+            self.checkbox_monsters_include_starters.GetValue() == 1
+        )
         grid_sizer_2.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
 
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, wx.ID_ANY)
@@ -106,6 +110,11 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_include_starters,
+            self.checkbox_monsters_include_starters,
+        )
         self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
 
@@ -161,6 +170,13 @@ class Main(wx.Frame):
                 logging.error(
                     f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
                 )
+
+    def changed_monsters_include_starters(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_include_starters.GetValue()
+        logging.info(f"User set monsters include starters: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.include_starters = raw_value == 1
 
 
 # end of class Main
