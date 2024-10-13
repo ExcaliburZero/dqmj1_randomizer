@@ -5,11 +5,14 @@
 #
 from typing import Any
 
+import logging
+import pathlib
 import random
 
 import wx  # type: ignore
 
 from dqmj1_randomizer.state import State
+from dqmj1_randomizer.logging import setup_logging
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -21,6 +24,7 @@ from dqmj1_randomizer.state import State
 class Main(wx.Frame):
     def __init__(self, *args: Any, **kwds: Any) -> None:
         # begin wxGlade: Main.__init__
+        setup_logging(pathlib.Path("log.txt"))
         self.state = State()
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
@@ -107,11 +111,12 @@ class Main(wx.Frame):
         event.Skip()
 
     def changed_seed(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.input_seed.GetValue()
         try:
-            value = int(self.input_seed.GetValue())
+            value = int(raw_value)
             self.state.seed = value
         except ValueError:
-            pass
+            logging.warning(f"Invalid seed: {raw_value}")
         event.Skip()
 
 
