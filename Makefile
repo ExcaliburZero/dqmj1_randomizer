@@ -5,3 +5,4 @@ compile:
 	
 lint:
 	mypy .
+	black --check .
