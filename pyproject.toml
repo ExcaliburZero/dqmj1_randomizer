@@ -3,6 +3,9 @@ name = "dqmj1_randomizer"
 version = "0.0.1"
 dependencies = ["wxPython", "ndspy"]
 
+[options.package_data]
+dqmj1_randomizer = "*.csv"
+
 [project.scripts]
 dqmj1_randomizer = "dqmj1_randomizer:main.main"
 

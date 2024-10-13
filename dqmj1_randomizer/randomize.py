@@ -1,11 +1,17 @@
+from typing import List
+
 import io
 import logging
+import os
 import pathlib
 import random
 
 import ndspy.rom
+import pandas as pd
 
 from dqmj1_randomizer.state import State
+
+data_path = pathlib.Path(os.path.realpath(__file__)) / ".." / "data"
 
 
 def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
@@ -49,6 +55,11 @@ def load_rom_files(rom: ndspy.rom.NintendoDSRom) -> None:
 def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bool:
     random.seed(state.seed)
 
+    info_filepath = data_path / "btl_enmy_prm_info.csv"
+    logging.info(f"Loading BtlEnmyPrm info file: {info_filepath}")
+    data = pd.read_csv(info_filepath)
+    logging.info(f"Successfully loaded BtlEnmyPrm info file.")
+
     filepath = "BtlEnmyPrm.bin"
     try:
         original_data = rom.getFileByName(filepath)
@@ -65,7 +76,7 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     for _ in range(0, length):
         entries.append(input_stream.read(88))
 
-    random.shuffle(entries)
+    shuffle_btlEnmy_prm(state, data, entries)
 
     output_stream = io.BytesIO()
     output_stream.write(start)
@@ -76,3 +87,21 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     logging.info(f"Sucessfully updated: {filepath}")
 
     return True
+
+
+def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) -> None:
+    entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
+
+    entries_to_shuffle = [
+        (i, entry) for (i, entry) in entries_to_shuffle if data["exclude"][i] != "y"
+    ]
+
+    logging.info(
+        f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
+    )
+
+    shuffled_entries = [e for e in entries_to_shuffle]
+    random.shuffle(shuffled_entries)
+
+    for (i, _), (_, entry) in zip(entries_to_shuffle, shuffled_entries):
+        entries[i] = entry
