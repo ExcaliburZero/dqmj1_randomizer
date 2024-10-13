@@ -8,3 +8,4 @@ dqmj1_randomizer = "dqmj1_randomizer:main.main"
 
 [tool.mypy]
 strict = true
+allow_subclassing_any = true
