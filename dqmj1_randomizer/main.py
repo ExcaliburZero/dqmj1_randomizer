@@ -50,8 +50,8 @@ class Main(wx.Frame):
         self.input_original_rom = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
         grid_sizer_1.Add(self.input_original_rom, 0, 0, 0)
 
-        self.InputNdsBrowse = wx.Button(self.panel_1, wx.ID_ANY, "Browse")
-        grid_sizer_1.Add(self.InputNdsBrowse, 0, 0, 0)
+        self.OriginalRomBrowse = wx.Button(self.panel_1, wx.ID_ANY, "Browse")
+        grid_sizer_1.Add(self.OriginalRomBrowse, 0, 0, 0)
 
         grid_sizer_1.Add((0, 0), 0, 0, 0)
 
@@ -102,22 +102,37 @@ class Main(wx.Frame):
 
         self.Layout()
 
-        self.Bind(wx.EVT_BUTTON, self.select_input_nds, self.InputNdsBrowse)
+        self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
+        self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
         # end wxGlade
-
-    def select_input_nds(self, event):  # wxGlade: Main.<event_handler>
-        print("Event handler 'select_input_nds' not implemented!")
-        event.Skip()
 
     def changed_seed(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.input_seed.GetValue()
         try:
             value = int(raw_value)
             self.state.seed = value
+            logging.info(f"Changed seed to: {value}")
         except ValueError:
             logging.warning(f"Invalid seed: {raw_value}")
-        event.Skip()
+
+    def changed_original_rom(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.input_original_rom.GetValue()
+        value = pathlib.Path(raw_value)
+        self.state.original_rom = value
+        logging.info(f"Changed original ROM to: {value}")
+
+    def select_original_rom(self, event):  # wxGlade: Main.<event_handler>
+        with wx.FileDialog(
+            self,
+            "Open original ROM",
+            wildcard="NDS ROM files (*.nds)|*.nds",
+            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+        ) as file_dialog:
+            if file_dialog.ShowModal() == wx.ID_CANCEL:
+                return
+
+            self.input_original_rom.SetValue(file_dialog.GetPath())
 
 
 # end of class Main
