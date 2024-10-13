@@ -1,7 +1,7 @@
 [project]
 name = "dqmj1_randomizer"
 version = "0.0.1"
-dependencies = ["wxPython"]
+dependencies = ["wxPython", "ndspy"]
 
 [project.scripts]
 dqmj1_randomizer = "dqmj1_randomizer:main.main"

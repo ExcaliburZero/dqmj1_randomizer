@@ -11,8 +11,9 @@ import random
 
 import wx  # type: ignore
 
+from dqmj1_randomizer.setup_logging import setup_logging
+from dqmj1_randomizer.randomize import randomize
 from dqmj1_randomizer.state import State
-from dqmj1_randomizer.logging import setup_logging
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -105,6 +106,7 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
+        self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
 
     def changed_seed(self, event):  # wxGlade: Main.<event_handler>
@@ -133,6 +135,32 @@ class Main(wx.Frame):
                 return
 
             self.input_original_rom.SetValue(file_dialog.GetPath())
+
+    def create_output_rom(self, event):  # wxGlade: Main.<event_handler>
+        logging.info('User clicked "Randomize!"')
+
+        with wx.FileDialog(
+            self,
+            "Create output ROM",
+            wildcard="NDS ROM files (*.nds)|*.nds",
+            style=wx.FD_OPEN,
+        ) as file_dialog:
+            if file_dialog.ShowModal() == wx.ID_CANCEL:
+                logging.info(f"User did not choose a file to write the output ROM to.")
+                return
+
+            output_rom_filepath = pathlib.Path(file_dialog.GetPath())
+            try:
+                result = randomize(self.state, output_rom_filepath)
+                if not result:
+                    logging.error(
+                        f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
+                    )
+            except Exception as e:
+                logging.exception(e)
+                logging.error(
+                    f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
+                )
 
 
 # end of class Main
