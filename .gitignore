@@ -1,6 +1,9 @@
 log.txt
 
 *.bak
+*.ods
+
+.~lock*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
