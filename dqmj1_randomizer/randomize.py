@@ -21,14 +21,10 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
 
     logging.info(f"Loading original ROM: {original_rom}")
     rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
+    load_rom_files(rom)
     logging.info(f"Sucessfully loaded original ROM.")
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
-
-    # Make sure all the rom files are loaded. Not sure why this is necessary, but it is indeed
-    # necessary...
-    for _ in rom.files:
-        pass
 
     result = True
     result &= randomize_btl_enmy_prm_tbl(state, rom)
@@ -43,12 +39,19 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
     return True
 
 
+def load_rom_files(rom: ndspy.rom.NintendoDSRom) -> None:
+    # Make sure all the rom files are loaded. Not sure why this is necessary, but it is indeed
+    # necessary...
+    for _ in rom.files:
+        pass
+
+
 def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bool:
     random.seed(state.seed)
 
     filepath = "BtlEnmyPrm.bin"
     try:
-        original_data = rom.getFileByName("BtlEnmyPrm.bin")
+        original_data = rom.getFileByName(filepath)
     except ValueError as e:
         logging.exception(e)
         logging.error(f"Failed to find BtlEnmyPrm in ROM. ({filepath})")
