@@ -9,6 +9,8 @@ import random
 
 import wx  # type: ignore
 
+from dqmj1_randomizer.state import State
+
 # begin wxGlade: dependencies
 # end wxGlade
 
@@ -19,6 +21,7 @@ import wx  # type: ignore
 class Main(wx.Frame):
     def __init__(self, *args: Any, **kwds: Any) -> None:
         # begin wxGlade: Main.__init__
+        self.state = State()
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((532, 328))
@@ -96,12 +99,19 @@ class Main(wx.Frame):
         self.Layout()
 
         self.Bind(wx.EVT_BUTTON, self.select_input_nds, self.InputNdsBrowse)
+        self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
         # end wxGlade
 
-    def select_input_nds(
-        self, event: wx.Event
-    ) -> None:  # wxGlade: Main.<event_handler>
-        print("Hello!")
+    def select_input_nds(self, event):  # wxGlade: Main.<event_handler>
+        print("Event handler 'select_input_nds' not implemented!")
+        event.Skip()
+
+    def changed_seed(self, event):  # wxGlade: Main.<event_handler>
+        try:
+            value = int(self.input_seed.GetValue())
+            self.state.seed = value
+        except ValueError:
+            pass
         event.Skip()
 
 
