@@ -96,7 +96,9 @@ def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) 
     entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
 
     entries_to_shuffle = [
-        (i, entry) for (i, entry) in entries_to_shuffle if data["exclude"][i] != "y"
+        (i, entry)
+        for (i, entry) in entries_to_shuffle
+        if data["exclude"][i] != "y" and data["is_gift_monster"][i] != "y"
     ]
 
     assert state.monsters.include_starters is not None
