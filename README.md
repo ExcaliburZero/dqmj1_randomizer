@@ -9,7 +9,7 @@ Download the latest release of DQMJ1 Unofficial Randomizer for your operating sy
 https://github.com/ExcaliburZero/dqmj1_randomizer/releases
 
 ## Development
-### Installation
+### Building exectuable
 ```bash
 # Download the source code
 git clone https://github.com/ExcaliburZero/dqmj1_randomizer.git
@@ -20,4 +20,17 @@ pip install -e .
 
 # Create the executable
 make compile
+```
+
+### Testing without building executable (faster)
+```bash
+# Download the source code
+git clone https://github.com/ExcaliburZero/dqmj1_randomizer.git
+cd dqmj1_randomizer
+
+# Install the library
+pip install -e .
+
+# Run the program
+python dqmj1_randomizer/main.py
 ```
