@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- "Transfer item drop to replacement monsters" option for monster randomization.
+
+### Changed
+
+- Defult behavior for boss monster randomization to transfer item drops to replacement monsters.
+
 ## [0.1.0] - 2024-10-13
 
 ### Added

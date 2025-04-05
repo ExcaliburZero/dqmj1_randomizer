@@ -1,5 +1,6 @@
 from typing import List
 
+import copy
 import io
 import logging
 import os
@@ -77,7 +78,7 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     start = input_stream.read(8)
     length = int.from_bytes(start[4:], "little")
     for _ in range(0, length):
-        entries.append(input_stream.read(88))
+        entries.append(bytearray(input_stream.read(88)))
 
     shuffle_btlEnmy_prm(state, data, entries)
 
@@ -92,7 +93,12 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     return True
 
 
-def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) -> None:
+def shuffle_btlEnmy_prm(
+    state: State, data: pd.DataFrame, entries: List[bytearray]
+) -> None:
+    # Annotate with the row indicies, so that we can use them later when setting the new values.
+    # Otherwise we would lose track of the indicies because we filter when excluding specific
+    # entries from the shuffle.
     entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
 
     entries_to_shuffle = [
@@ -122,5 +128,28 @@ def shuffle_btlEnmy_prm(state: State, data: pd.DataFrame, entries: List[bytes]) 
     shuffled_entries = [e for e in entries_to_shuffle]
     random.shuffle(shuffled_entries)
 
-    for (i, _), (_, entry) in zip(entries_to_shuffle, shuffled_entries):
-        entries[i] = entry
+    num_item_drops_swapped = 0
+    for (i, prev_entry), (i_2, new_entry) in zip(entries_to_shuffle, shuffled_entries):
+        entries[i] = copy.copy(new_entry)
+
+        if state.monsters.transfer_boss_item_drops and (
+            data["swap_drop"][i] == "y" or data["swap_drop"][i_2] == "y"
+        ):
+            set_item_drop_bytes(
+                entry=entries[i],
+                item_drop_bytes=get_item_drop_bytes(prev_entry),
+            )
+            if data["swap_drop"][i] == "y":
+                num_item_drops_swapped += 1
+
+    if state.monsters.transfer_boss_item_drops:
+        logging.info(f"Swapped item drops for {num_item_drops_swapped} entries.")
+
+
+def get_item_drop_bytes(entry: bytearray) -> bytes:
+    return entry[32:40]
+
+
+def set_item_drop_bytes(entry: bytearray, item_drop_bytes: bytes) -> None:
+    assert len(item_drop_bytes) == 8
+    entry[32:40] = item_drop_bytes

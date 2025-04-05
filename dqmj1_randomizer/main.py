@@ -78,7 +78,7 @@ class Main(wx.Frame):
 
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
 
-        grid_sizer_2 = wx.FlexGridSizer(2, 1, 4, 0)
+        grid_sizer_2 = wx.FlexGridSizer(3, 1, 4, 0)
         sizer_2.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 10)
 
         self.checkbox_monsters_include_bosses = wx.CheckBox(
@@ -88,6 +88,26 @@ class Main(wx.Frame):
             self.checkbox_monsters_include_bosses.GetValue() == 1
         )
         grid_sizer_2.Add(self.checkbox_monsters_include_bosses, 0, 0, 0)
+
+        grid_sizer_3 = wx.FlexGridSizer(1, 2, 0, 0)
+        grid_sizer_2.Add(grid_sizer_3, 1, wx.EXPAND, 0)
+
+        grid_sizer_3.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_transfer_item_drop_to_replacement_monster = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Transfer item drop to replacement monsters"
+        )
+        self.checkbox_transfer_item_drop_to_replacement_monster.SetToolTip(
+            "If checked, then the monsters that replace each boss will drop the same items as the boss monster. Useful for keeping player spell book drops the same."
+        )
+        self.checkbox_transfer_item_drop_to_replacement_monster.Enable(False)
+        self.checkbox_transfer_item_drop_to_replacement_monster.SetValue(1)
+        self.state.monsters.transfer_boss_item_drops = (
+            self.checkbox_transfer_item_drop_to_replacement_monster.GetValue() == 1
+        )
+        grid_sizer_3.Add(
+            self.checkbox_transfer_item_drop_to_replacement_monster, 0, 0, 0
+        )
 
         self.checkbox_monsters_include_starters = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include starters"
@@ -114,6 +134,11 @@ class Main(wx.Frame):
             wx.EVT_CHECKBOX,
             self.changed_monsters_include_bosses,
             self.checkbox_monsters_include_bosses,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_ter_im_drop_to_rep_mon,
+            self.checkbox_transfer_item_drop_to_replacement_monster,
         )
         self.Bind(
             wx.EVT_CHECKBOX,
@@ -195,6 +220,18 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.include_bosses = raw_value == 1
+
+        if raw_value == 1:
+            self.checkbox_transfer_item_drop_to_replacement_monster.Enable()
+        else:
+            self.checkbox_transfer_item_drop_to_replacement_monster.Disable()
+
+    def changed_ter_im_drop_to_rep_mon(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_transfer_item_drop_to_replacement_monster.GetValue()
+        logging.info(f"User set transfer item drop to replacement monster: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.transfer_boss_item_drops = raw_value == 1
 
 
 # end of class Main

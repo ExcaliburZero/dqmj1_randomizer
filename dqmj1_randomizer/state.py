@@ -7,6 +7,7 @@ import pathlib
 @dataclass
 class Monsters:
     include_bosses: Optional[bool] = None
+    transfer_boss_item_drops: Optional[bool] = None
     include_starters: Optional[bool] = None
 
 
