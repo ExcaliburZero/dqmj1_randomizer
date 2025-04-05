@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Item drop for boss Belial not being transferred when the relevant option was set.
+- Crash on Linux when trying to lookup a data file to build the randomized ROM.
 
 ## [0.2.0] - 2025-04-04
 
