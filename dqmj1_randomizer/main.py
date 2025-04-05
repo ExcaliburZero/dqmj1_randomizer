@@ -185,7 +185,7 @@ class Main(wx.Frame):
             style=wx.FD_OPEN,
         ) as file_dialog:
             if file_dialog.ShowModal() == wx.ID_CANCEL:
-                logging.info(f"User did not choose a file to write the output ROM to.")
+                logging.info("User did not choose a file to write the output ROM to.")
                 return
 
             output_rom_filepath = pathlib.Path(file_dialog.GetPath())

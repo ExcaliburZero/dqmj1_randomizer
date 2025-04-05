@@ -22,7 +22,7 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
     original_rom = state.original_rom
 
     if original_rom is None:
-        logging.error(f"No original ROM was selected.")
+        logging.error("No original ROM was selected.")
         return False
 
     if not original_rom.exists():
@@ -32,7 +32,7 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
     logging.info(f"Loading original ROM: {original_rom}")
     rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
     load_rom_files(rom)
-    logging.info(f"Sucessfully loaded original ROM.")
+    logging.info("Sucessfully loaded original ROM.")
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
 
@@ -62,7 +62,7 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     info_filepath = data_path / "btl_enmy_prm_info.csv"
     logging.info(f"Loading BtlEnmyPrm info file: {info_filepath}")
     data = pd.read_csv(info_filepath)
-    logging.info(f"Successfully loaded BtlEnmyPrm info file.")
+    logging.info("Successfully loaded BtlEnmyPrm info file.")
 
     filepath = "BtlEnmyPrm.bin"
     try:
