@@ -4,7 +4,6 @@ import logging
 import os
 import pathlib
 import random
-from typing import List
 
 import ndspy.rom
 import pandas as pd
@@ -93,7 +92,7 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
 
 
 def shuffle_btlEnmy_prm(
-    state: State, data: pd.DataFrame, entries: List[bytearray]
+    state: State, data: pd.DataFrame, entries: list[bytearray]
 ) -> None:
     # Annotate with the row indicies, so that we can use them later when setting the new values.
     # Otherwise we would lose track of the indicies because we filter when excluding specific

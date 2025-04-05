@@ -21,4 +21,4 @@ allow_subclassing_any = true
 allow_untyped_defs = true
 
 [tool.ruff.lint]
-select = ["B", "I"]
+select = ["B", "I", "UP"]
