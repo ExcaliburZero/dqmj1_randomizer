@@ -77,7 +77,7 @@ class Main(wx.Frame):
 
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
 
-        grid_sizer_2 = wx.FlexGridSizer(3, 1, 4, 0)
+        grid_sizer_2 = wx.FlexGridSizer(4, 1, 4, 0)
         sizer_2.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 10)
 
         self.checkbox_monsters_include_bosses = wx.CheckBox(
@@ -123,6 +123,18 @@ class Main(wx.Frame):
         )
         grid_sizer_2.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
 
+        self.checkbox_monsters_include_gift_monsters = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Include gift monsters"
+        )
+        self.checkbox_monsters_include_gift_monsters.SetToolTip(
+            "If checked, randomizes gifted monsters along with other encounters."
+        )
+        self.checkbox_monsters_include_gift_monsters.SetValue(1)
+        self.state.monsters.include_gift_monsters = (
+            self.checkbox_monsters_include_gift_monsters.GetValue() == 1
+        )
+        grid_sizer_2.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
+
         self.button_1 = wx.Button(self.panel_1, wx.ID_ANY, "Randomize!")
         sizer_1.Add(self.button_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 10)
 
@@ -149,6 +161,11 @@ class Main(wx.Frame):
             wx.EVT_CHECKBOX,
             self.changed_monsters_include_starters,
             self.checkbox_monsters_include_starters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_include_gift_monsters,
+            self.checkbox_monsters_include_gift_monsters,
         )
         self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
@@ -237,6 +254,13 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.transfer_boss_item_drops = raw_value == 1
+
+    def changed_mon_include_gift_monsters(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_include_gift_monsters.GetValue()
+        logging.info(f"User set monsters include gift monsters: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.include_gift_monsters = raw_value == 1
 
 
 # end of class Main

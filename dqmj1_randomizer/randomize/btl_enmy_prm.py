@@ -16,10 +16,16 @@ def shuffle_btl_enmy_prm(
     entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
 
     entries_to_shuffle = [
-        (i, entry)
-        for (i, entry) in entries_to_shuffle
-        if data["exclude"][i] != "y" and data["is_gift_monster"][i] != "y"
+        (i, entry) for (i, entry) in entries_to_shuffle if data["exclude"][i] != "y"
     ]
+
+    assert state.monsters.include_gift_monsters is not None
+    if not state.monsters.include_gift_monsters:
+        entries_to_shuffle = [
+            (i, entry)
+            for (i, entry) in entries_to_shuffle
+            if data["is_gift_monster"][i] != "y"
+        ]
 
     assert state.monsters.include_starters is not None
     if not state.monsters.include_starters:

@@ -8,6 +8,7 @@ class Monsters:
     include_bosses: Optional[bool] = None
     transfer_boss_item_drops: Optional[bool] = None
     include_starters: Optional[bool] = None
+    include_gift_monsters: Optional[bool] = None
 
 
 @dataclass
