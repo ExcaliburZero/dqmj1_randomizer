@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - "Include gift monsters" option for monster randomization.
+- More helpful error messages for likely errors.
+
+### Fixed
+
+- Cases where failing to generate a randomized ROM would still show a success popup window.
 
 ## [0.2.1] - 2025-04-04
 

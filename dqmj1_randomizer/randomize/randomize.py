@@ -11,38 +11,47 @@ from dqmj1_randomizer.randomize.btl_enmy_prm import shuffle_btl_enmy_prm
 from dqmj1_randomizer.state import State
 
 
-def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
+class RandomizationException(Exception):
+    def __init__(self, msg: str) -> None:
+        self.msg = msg
+
+
+class FailedToFindExpectedRomSubFile(RandomizationException):
+    def __init__(self, filepath: str, description: str) -> None:
+        self.msg = f'Failed to find {description} file "{filepath}" in ROM. Make sure the ROM is of Dragon Quest Monsters Joker 1.'
+
+
+def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     logging.info(f"output_rom_filepath={output_rom_filepath}")
     logging.info(f"state={state}")
 
     original_rom = state.original_rom
 
     if original_rom is None:
-        logging.error("No original ROM was selected.")
-        return False
+        raise RandomizationException("No original ROM was selected.")
 
     if not original_rom.exists():
-        logging.error(f"Original ROM does not exist: {original_rom}")
-        return False
+        raise RandomizationException(f"Original ROM does not exist: {original_rom}")
 
     logging.info(f"Loading original ROM: {original_rom}")
-    rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
+
+    try:
+        rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
+    except Exception as e:
+        raise RandomizationException(
+            f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom}"
+        ) from e
+
     load_rom_files(rom)
     logging.info("Successfully loaded original ROM.")
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
 
-    result = True
-    result &= randomize_btl_enmy_prm_tbl(state, rom)
-
-    if not result:
-        return False
+    randomize_btl_enmy_prm_tbl(state, rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
     logging.info("Successfully wrote randomized ROM.")
-
-    return True
 
 
 def load_rom_files(rom: ndspy.rom.NintendoDSRom) -> None:
@@ -52,7 +61,7 @@ def load_rom_files(rom: ndspy.rom.NintendoDSRom) -> None:
         pass
 
 
-def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bool:
+def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
     random.seed(state.seed)
 
     info_filepath = data_path / "btl_enmy_prm_info.csv"
@@ -64,9 +73,9 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
     try:
         original_data = rom.getFileByName(filepath)
     except ValueError as e:
-        logging.exception(e)
-        logging.error(f"Failed to find BtlEnmyPrm in ROM. ({filepath})")
-        return False
+        raise FailedToFindExpectedRomSubFile(
+            "BtlEnmyPrm.bin", "enemy encounters"
+        ) from e
 
     start = None
     entries = []
@@ -85,5 +94,3 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
 
     rom.setFileByName(filepath, output_stream.getvalue())
     logging.info(f"Successfully updated: {filepath}")
-
-    return True

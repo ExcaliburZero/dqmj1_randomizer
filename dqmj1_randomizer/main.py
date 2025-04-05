@@ -6,13 +6,16 @@
 import logging
 import pathlib
 import random
+import traceback
 from typing import Any
 
 import wx  # type: ignore
 
-from dqmj1_randomizer.randomize.randomize import randomize
+from dqmj1_randomizer.randomize.randomize import RandomizationException, randomize
 from dqmj1_randomizer.setup_logging import setup_logging
 from dqmj1_randomizer.state import State
+
+GITHUB_ISSUES_URL = "https://github.com/ExcaliburZero/dqmj1_randomizer/issues"
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -212,21 +215,32 @@ class Main(wx.Frame):
 
             output_rom_filepath = pathlib.Path(file_dialog.GetPath())
             try:
-                result = randomize(self.state, output_rom_filepath)
-                if not result:
-                    logging.error(
-                        f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
-                    )
+                randomize(self.state, output_rom_filepath)
 
                 wx.MessageBox(
                     f"Successfully wrote randomized ROM to: {output_rom_filepath}",
                     "Success",
                     wx.OK | wx.ICON_INFORMATION,
                 )
+            except RandomizationException as e:
+                logging.exception(e)
+                logging.error(
+                    f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
+                )
+                wx.MessageBox(
+                    f"Failed to generate randomized ROM\n\n{e.msg}",
+                    "Failure",
+                    wx.OK | wx.ICON_ERROR,
+                )
             except Exception as e:
                 logging.exception(e)
                 logging.error(
                     f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
+                )
+                wx.MessageBox(
+                    f"Failed to properly generate randomized ROM due to unknown error\n\nPlease report this error to the developer: {GITHUB_ISSUES_URL}\n\n{traceback.format_exc()}",
+                    "Failure",
+                    wx.OK | wx.ICON_ERROR,
                 )
 
     def changed_monsters_include_starters(self, event):  # wxGlade: Main.<event_handler>
