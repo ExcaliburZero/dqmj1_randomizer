@@ -18,7 +18,8 @@ git push origin $VERSION
 ```bash
 git push origin master
 ```
-* Wait for the GitHub Actions build to finish
+* Wait for the GitHub Actions build of `master` branch to finish
+    * NOT the GitHub Actions build of the `vX.Y.Z` tag, since that will not generate artifacts with the correct version naming
 * Create a [new release](https://github.com/ExcaliburZero/dqmj1_randomizer/releases/new) on GitHub
     * Use the tag you created
     * Set the release title to be `vX.Y.Z`
