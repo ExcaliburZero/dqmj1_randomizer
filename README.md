@@ -9,6 +9,8 @@ Download the latest release of DQMJ1 Unofficial Randomizer for your operating sy
 https://github.com/ExcaliburZero/dqmj1_randomizer/releases
 
 ## Development
+* [Release instructions](RELEASE.md) - Instructions on how to create a new versioned release of DQMJ1 Unofficial Randomizer
+
 ### Download source code
 ```bash
 # Download the source code
