@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Item drop for boss Belial not being transfer when the relevant option was set.
+
 ## [0.2.0] - 2025-04-04
 
 ### Added
