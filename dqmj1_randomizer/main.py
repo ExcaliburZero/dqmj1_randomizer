@@ -10,7 +10,7 @@ from typing import Any
 
 import wx  # type: ignore
 
-from dqmj1_randomizer.randomize import randomize
+from dqmj1_randomizer.randomize.randomize import randomize
 from dqmj1_randomizer.setup_logging import setup_logging
 from dqmj1_randomizer.state import State
 
