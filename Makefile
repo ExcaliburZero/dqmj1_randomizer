@@ -6,3 +6,4 @@ compile:
 lint:
 	mypy dqmj1_randomizer
 	ruff format --check .
+	ruff check dqmj1_randomizer
