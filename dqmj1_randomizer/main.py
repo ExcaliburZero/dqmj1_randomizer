@@ -83,6 +83,9 @@ class Main(wx.Frame):
         self.checkbox_monsters_include_bosses = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include bosses"
         )
+        self.checkbox_monsters_include_bosses.SetToolTip(
+            "If checked, randomizes bosses along with other encounters. If not checked, then bosses are kept the same."
+        )
         self.state.monsters.include_bosses = (
             self.checkbox_monsters_include_bosses.GetValue() == 1
         )
@@ -110,6 +113,9 @@ class Main(wx.Frame):
 
         self.checkbox_monsters_include_starters = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include starters"
+        )
+        self.checkbox_monsters_include_starters.SetToolTip(
+            "If checked, randomizes starters along with other encounters."
         )
         self.checkbox_monsters_include_starters.SetValue(1)
         self.state.monsters.include_starters = (
