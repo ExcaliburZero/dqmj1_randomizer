@@ -19,6 +19,7 @@ dqmj1_randomizer = "dqmj1_randomizer:main.main"
 strict = true
 allow_subclassing_any = true
 allow_untyped_defs = true
+exclude = ["build"]
 
 [tool.ruff.lint]
 select = ["B", "I", "UP", "FURB", "RUF"]
