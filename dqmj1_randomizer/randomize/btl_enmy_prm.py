@@ -1,6 +1,7 @@
 import copy
 import logging
 import random
+from typing import Callable
 
 import pandas as pd
 
@@ -15,31 +16,25 @@ def shuffle_btl_enmy_prm(
     # entries from the shuffle.
     entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
 
-    entries_to_shuffle = [
-        (i, entry) for (i, entry) in entries_to_shuffle if data["exclude"][i] != "y"
-    ]
+    def filter_entries(condition: Callable[[int], bool]) -> None:
+        nonlocal entries_to_shuffle
+        entries_to_shuffle = [
+            (i, entry) for (i, entry) in entries_to_shuffle if condition(i)
+        ]
+
+    filter_entries(lambda i: data["exclude"][i] != "y")
 
     assert state.monsters.include_gift_monsters is not None
     if not state.monsters.include_gift_monsters:
-        entries_to_shuffle = [
-            (i, entry)
-            for (i, entry) in entries_to_shuffle
-            if data["is_gift_monster"][i] != "y"
-        ]
+        filter_entries(lambda i: data["is_gift_monster"][i] != "y")
 
     assert state.monsters.include_starters is not None
     if not state.monsters.include_starters:
-        entries_to_shuffle = [
-            (i, entry)
-            for (i, entry) in entries_to_shuffle
-            if data["is_starter"][i] != "y"
-        ]
+        filter_entries(lambda i: data["is_starter"][i] != "y")
 
     assert state.monsters.include_bosses is not None
     if not state.monsters.include_bosses:
-        entries_to_shuffle = [
-            (i, entry) for (i, entry) in entries_to_shuffle if data["is_boss"][i] != "y"
-        ]
+        filter_entries(lambda i: data["is_boss"][i] != "y")
 
     logging.info(
         f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
