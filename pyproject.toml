@@ -3,6 +3,9 @@ name = "dqmj1_randomizer"
 version = "0.1.0"
 dependencies = ["wxPython", "ndspy", "pandas"]
 
+[tool.setuptools]
+packages = ["dqmj1_randomizer"]
+
 [options.package_data]
 dqmj1_randomizer = "*.csv"
 
