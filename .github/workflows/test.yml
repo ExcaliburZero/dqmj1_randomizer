@@ -18,6 +18,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-tags: true
+
+    - name: Get version number
+      run: |
+        git tag
+        echo "RELEASE_VERSION=$(git describe)" >> $env:GITHUB_ENV
 
     - name: Install dependencies
       if: matrix.os == 'ubuntu-latest'
@@ -45,11 +52,11 @@ jobs:
     - name: Check formatting with ruff
       run: |
         ruff format --check .
-    - name: Create exectuable
+    - name: Create executable
       run: |
         make compile
     - name: Archive executable
       uses: actions/upload-artifact@v4
       with:
-        name: executable_${{ runner.os }}
+        name: dqmj1_randomizer_${{ env.RELEASE_VERSION }}_${{ runner.os }}
         path: dist/dqmj1_randomizer/*
