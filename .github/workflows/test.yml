@@ -45,3 +45,11 @@ jobs:
     - name: Check formatting with ruff
       run: |
         ruff format --check .
+    - name: Create exectuable
+      run: |
+        make compile
+    - name: Archive executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: executable_${{ runner.os }}
+        path: dist/dqmj1_randomizer/*
