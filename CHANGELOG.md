@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Cases where failing to generate a randomized ROM would still show a success popup window.
+- Output ROM file chooser dialogue having an "Open" button instead of a "Save" button.
 
 ## [0.2.1] - 2025-04-04
 

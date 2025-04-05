@@ -207,7 +207,7 @@ class Main(wx.Frame):
             self,
             "Create output ROM",
             wildcard="NDS ROM files (*.nds)|*.nds",
-            style=wx.FD_OPEN,
+            style=wx.FD_SAVE,
         ) as file_dialog:
             if file_dialog.ShowModal() == wx.ID_CANCEL:
                 logging.info("User did not choose a file to write the output ROM to.")
