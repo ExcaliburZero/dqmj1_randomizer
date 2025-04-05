@@ -3,6 +3,9 @@ name = "dqmj1_randomizer"
 version = "0.2.1"
 dependencies = ["wxPython", "ndspy", "pandas"]
 
+[project.optional-dependencies]
+test = ["mypy==1.15", "ruff==0.11", "pandas-stubs"]
+
 [tool.setuptools]
 packages = ["dqmj1_randomizer"]
 
