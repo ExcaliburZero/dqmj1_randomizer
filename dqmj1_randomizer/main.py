@@ -219,7 +219,7 @@ class Main(wx.Frame):
                     )
 
                 wx.MessageBox(
-                    f"Sucessfully wrote randomized ROM to: {output_rom_filepath}",
+                    f"Successfully wrote randomized ROM to: {output_rom_filepath}",
                     "Success",
                     wx.OK | wx.ICON_INFORMATION,
                 )

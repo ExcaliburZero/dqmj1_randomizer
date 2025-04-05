@@ -10,8 +10,8 @@ from dqmj1_randomizer.state import State
 def shuffle_btl_enmy_prm(
     state: State, data: pd.DataFrame, entries: list[bytearray]
 ) -> None:
-    # Annotate with the row indicies, so that we can use them later when setting the new values.
-    # Otherwise we would lose track of the indicies because we filter when excluding specific
+    # Annotate with the row indices, so that we can use them later when setting the new values.
+    # Otherwise we would lose track of the indices because we filter when excluding specific
     # entries from the shuffle.
     entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
 

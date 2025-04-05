@@ -28,7 +28,7 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
     logging.info(f"Loading original ROM: {original_rom}")
     rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
     load_rom_files(rom)
-    logging.info("Sucessfully loaded original ROM.")
+    logging.info("Successfully loaded original ROM.")
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
 
@@ -40,7 +40,7 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> bool:
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
-    logging.info("Sucessfully wrote randomized ROM.")
+    logging.info("Successfully wrote randomized ROM.")
 
     return True
 
@@ -84,6 +84,6 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> bo
         output_stream.write(entry)
 
     rom.setFileByName(filepath, output_stream.getvalue())
-    logging.info(f"Sucessfully updated: {filepath}")
+    logging.info(f"Successfully updated: {filepath}")
 
     return True
