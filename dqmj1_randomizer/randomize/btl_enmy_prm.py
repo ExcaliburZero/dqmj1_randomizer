@@ -24,6 +24,12 @@ def shuffle_btl_enmy_prm(
 
     filter_entries(lambda i: data["exclude"][i] != "y")
 
+    # Note: We always filter out the gift incarnus from randomization, because not having incarnus
+    # can cause some cutscenes to crash. For more details see:
+    #
+    #  https://github.com/ExcaliburZero/dqmj1_randomizer/issues/4
+    filter_entries(lambda i: data["is_gift_incarnus"][i] != "y")
+
     assert state.monsters.include_gift_monsters is not None
     if not state.monsters.include_gift_monsters:
         filter_entries(lambda i: data["is_gift_monster"][i] != "y")
