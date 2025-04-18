@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-04-18
+
 ### Fixed
 
 - Incarnus being randomized, which could lead to game crashing during cutscenes. (#4)
