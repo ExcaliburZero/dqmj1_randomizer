@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Incarnus being randomized, which could lead to game crashing during cutscenes. (#4)
+- Incarnus being randomized when randomizing gift monsters, which could lead to game crashing during cutscenes. (#4)
 
 ## [0.3.0] - 2025-04-05
 
