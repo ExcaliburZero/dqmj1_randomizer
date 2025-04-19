@@ -80,8 +80,23 @@ class Main(wx.Frame):
 
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
 
-        grid_sizer_2 = wx.FlexGridSizer(4, 1, 4, 0)
+        grid_sizer_2 = wx.FlexGridSizer(2, 1, 4, 0)
         sizer_2.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 10)
+
+        self.checkbox_randomize_monsters = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Randomize monsters"
+        )
+        self.checkbox_randomize_monsters.SetToolTip(
+            "If checked, randomizes the monster encounters table."
+        )
+        self.checkbox_randomize_monsters.SetValue(1)
+        self.state.monsters.randomize = self.checkbox_randomize_monsters.GetValue() == 1
+        grid_sizer_2.Add(self.checkbox_randomize_monsters, 0, 0, 0)
+
+        grid_sizer_5 = wx.FlexGridSizer(4, 2, 4, 0)
+        grid_sizer_2.Add(grid_sizer_5, 1, wx.ALL | wx.EXPAND, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
 
         self.checkbox_monsters_include_bosses = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include bosses"
@@ -92,10 +107,12 @@ class Main(wx.Frame):
         self.state.monsters.include_bosses = (
             self.checkbox_monsters_include_bosses.GetValue() == 1
         )
-        grid_sizer_2.Add(self.checkbox_monsters_include_bosses, 0, 0, 0)
+        grid_sizer_5.Add(self.checkbox_monsters_include_bosses, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
 
         grid_sizer_3 = wx.FlexGridSizer(1, 2, 0, 0)
-        grid_sizer_2.Add(grid_sizer_3, 1, wx.EXPAND, 0)
+        grid_sizer_5.Add(grid_sizer_3, 1, wx.EXPAND, 0)
 
         grid_sizer_3.Add((20, 0), 0, 0, 0)
 
@@ -114,6 +131,8 @@ class Main(wx.Frame):
             self.checkbox_transfer_item_drop_to_replacement_monster, 0, 0, 0
         )
 
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
         self.checkbox_monsters_include_starters = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include starters"
         )
@@ -124,7 +143,9 @@ class Main(wx.Frame):
         self.state.monsters.include_starters = (
             self.checkbox_monsters_include_starters.GetValue() == 1
         )
-        grid_sizer_2.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
+        grid_sizer_5.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
 
         self.checkbox_monsters_include_gift_monsters = wx.CheckBox(
             self.monsters_tab, wx.ID_ANY, "Include gift monsters"
@@ -136,10 +157,32 @@ class Main(wx.Frame):
         self.state.monsters.include_gift_monsters = (
             self.checkbox_monsters_include_gift_monsters.GetValue() == 1
         )
-        grid_sizer_2.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
+        grid_sizer_5.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
+
+        self.skill_sets_tab = wx.Panel(self.notebook_1, wx.ID_ANY)
+        self.notebook_1.AddPage(self.skill_sets_tab, "Skill sets")
+
+        sizer_3 = wx.BoxSizer(wx.VERTICAL)
+
+        grid_sizer_4 = wx.FlexGridSizer(1, 1, 0, 0)
+        sizer_3.Add(grid_sizer_4, 1, wx.ALL | wx.EXPAND, 10)
+
+        self.checkbox_randomize_skill_sets = wx.CheckBox(
+            self.skill_sets_tab, wx.ID_ANY, "Randomize skill sets"
+        )
+        self.checkbox_randomize_skill_sets.SetToolTip(
+            "If checked, randomizes aspects of skill sets."
+        )
+        self.checkbox_randomize_skill_sets.SetValue(1)
+        self.state.skill_sets.randomize = (
+            self.checkbox_randomize_skill_sets.GetValue() == 1
+        )
+        grid_sizer_4.Add(self.checkbox_randomize_skill_sets, 0, 0, 0)
 
         self.button_1 = wx.Button(self.panel_1, wx.ID_ANY, "Randomize!")
         sizer_1.Add(self.button_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 10)
+
+        self.skill_sets_tab.SetSizer(sizer_3)
 
         self.monsters_tab.SetSizer(sizer_2)
 
@@ -150,6 +193,11 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_randomize,
+            self.checkbox_randomize_monsters,
+        )
         self.Bind(
             wx.EVT_CHECKBOX,
             self.changed_monsters_include_bosses,
@@ -169,6 +217,11 @@ class Main(wx.Frame):
             wx.EVT_CHECKBOX,
             self.changed_mon_include_gift_monsters,
             self.checkbox_monsters_include_gift_monsters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_skill_sets_randomize,
+            self.checkbox_randomize_skill_sets,
         )
         self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
@@ -243,6 +296,25 @@ class Main(wx.Frame):
                     wx.OK | wx.ICON_ERROR,
                 )
 
+    def changed_monsters_randomize(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_randomize_monsters.GetValue()
+        logging.info(f"User set randomize monsters: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.randomize = raw_value == 1
+
+        if raw_value == 1:
+            if self.state.monsters.include_bosses:
+                self.checkbox_transfer_item_drop_to_replacement_monster.Enable()
+            self.checkbox_monsters_include_bosses.Enable()
+            self.checkbox_monsters_include_starters.Enable()
+            self.checkbox_monsters_include_gift_monsters.Enable()
+        else:
+            self.checkbox_monsters_include_bosses.Disable()
+            self.checkbox_transfer_item_drop_to_replacement_monster.Disable()
+            self.checkbox_monsters_include_starters.Disable()
+            self.checkbox_monsters_include_gift_monsters.Disable()
+
     def changed_monsters_include_starters(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_monsters_include_starters.GetValue()
         logging.info(f"User set monsters include starters: {raw_value}")
@@ -275,6 +347,13 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.include_gift_monsters = raw_value == 1
+
+    def changed_skill_sets_randomize(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_randomize_skill_sets.GetValue()
+        logging.info(f"User set randomize skill sets: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.skill_sets.randomize = raw_value == 1
 
 
 # end of class Main

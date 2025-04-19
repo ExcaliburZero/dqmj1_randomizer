@@ -8,6 +8,7 @@ import pandas as pd
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import shuffle_btl_enmy_prm
+from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tbl
 from dqmj1_randomizer.state import State
 
 
@@ -47,7 +48,11 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
 
-    randomize_btl_enmy_prm_tbl(state, rom)
+    if state.monsters.randomize:
+        randomize_btl_enmy_prm_tbl(state, rom)
+
+    if state.skill_sets.randomize:
+        randomize_skill_tbl(state, rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
@@ -91,6 +96,32 @@ def randomize_btl_enmy_prm_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> No
     output_stream.write(start)
     for entry in entries:
         output_stream.write(entry)
+
+    rom.setFileByName(filepath, output_stream.getvalue())
+    logging.info(f"Successfully updated: {filepath}")
+
+
+def randomize_skill_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
+    random.seed(state.seed)
+
+    info_filepath = data_path / "skill_tbl_info.csv"
+    logging.info(f"Loading SkillTbl info file: {info_filepath}")
+    data = pd.read_csv(info_filepath)
+    logging.info("Successfully loaded SkillTbl info file.")
+
+    filepath = "SkillTbl.bin"
+    try:
+        original_data = rom.getFileByName(filepath)
+    except ValueError as e:
+        raise FailedToFindExpectedRomSubFile("SkillTbl.bin", "skill sets") from e
+
+    input_stream = io.BytesIO(original_data)
+    skill_sets = SkillSetTable.from_bin(input_stream)
+
+    shuffle_skill_tbl(state, data, skill_sets)
+
+    output_stream = io.BytesIO()
+    skill_sets.write_bin(output_stream)
 
     rom.setFileByName(filepath, output_stream.getvalue())
     logging.info(f"Successfully updated: {filepath}")
