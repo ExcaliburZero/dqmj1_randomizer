@@ -48,8 +48,11 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
 
     logging.info(f"{len(rom.files)} files found in the original ROM.")
 
-    randomize_btl_enmy_prm_tbl(state, rom)
-    randomize_skill_tbl(state, rom)
+    if state.monsters.randomize:
+        randomize_btl_enmy_prm_tbl(state, rom)
+
+    if state.skill_sets.randomize:
+        randomize_skill_tbl(state, rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
