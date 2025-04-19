@@ -42,8 +42,12 @@ class Main(wx.Frame):
         sizer_1.Add(grid_sizer_1, 0, wx.ALL, 10)
 
         original_rom = wx.StaticText(self.panel_1, wx.ID_ANY, "Original ROM (*.nds)")
-        original_rom.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
-        original_rom.SetToolTip("\".nds\" file of the ROM to randomize")
+        original_rom.SetFont(
+            wx.Font(
+                9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""
+            )
+        )
+        original_rom.SetToolTip('".nds" file of the ROM to randomize')
         grid_sizer_1.Add(original_rom, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 0)
 
         self.input_original_rom = wx.TextCtrl(self.panel_1, wx.ID_ANY, "")
@@ -55,7 +59,11 @@ class Main(wx.Frame):
         grid_sizer_1.Add((0, 0), 0, 0, 0)
 
         label_seed = wx.StaticText(self.panel_1, wx.ID_ANY, "Seed")
-        label_seed.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
+        label_seed.SetFont(
+            wx.Font(
+                9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""
+            )
+        )
         label_seed.SetToolTip("Number to use to control the randomness")
         grid_sizer_1.Add(label_seed, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 0)
 
@@ -75,8 +83,12 @@ class Main(wx.Frame):
         grid_sizer_2 = wx.FlexGridSizer(2, 1, 4, 0)
         sizer_2.Add(grid_sizer_2, 1, wx.ALL | wx.EXPAND, 10)
 
-        self.checkbox_randomize_monsters = wx.CheckBox(self.monsters_tab, wx.ID_ANY, "Randomize monsters")
-        self.checkbox_randomize_monsters.SetToolTip("If checked, randomizes the monster encounters table.")
+        self.checkbox_randomize_monsters = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Randomize monsters"
+        )
+        self.checkbox_randomize_monsters.SetToolTip(
+            "If checked, randomizes the monster encounters table."
+        )
         self.checkbox_randomize_monsters.SetValue(1)
         self.state.monsters.randomize = self.checkbox_randomize_monsters.GetValue() == 1
         grid_sizer_2.Add(self.checkbox_randomize_monsters, 0, 0, 0)
@@ -86,9 +98,15 @@ class Main(wx.Frame):
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
 
-        self.checkbox_monsters_include_bosses = wx.CheckBox(self.monsters_tab, wx.ID_ANY, "Include bosses")
-        self.checkbox_monsters_include_bosses.SetToolTip("If checked, randomizes bosses along with other encounters. If not checked, then bosses are kept the same.")
-        self.state.monsters.include_bosses = self.checkbox_monsters_include_bosses.GetValue() == 1
+        self.checkbox_monsters_include_bosses = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Include bosses"
+        )
+        self.checkbox_monsters_include_bosses.SetToolTip(
+            "If checked, randomizes bosses along with other encounters. If not checked, then bosses are kept the same."
+        )
+        self.state.monsters.include_bosses = (
+            self.checkbox_monsters_include_bosses.GetValue() == 1
+        )
         grid_sizer_5.Add(self.checkbox_monsters_include_bosses, 0, 0, 0)
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
@@ -98,27 +116,47 @@ class Main(wx.Frame):
 
         grid_sizer_3.Add((20, 0), 0, 0, 0)
 
-        self.checkbox_transfer_item_drop_to_replacement_monster = wx.CheckBox(self.monsters_tab, wx.ID_ANY, "Transfer item drop to replacement monsters")
-        self.checkbox_transfer_item_drop_to_replacement_monster.SetToolTip("If checked, then the monsters that replace each boss will drop the same items as the boss monster. Useful for keeping player spell book drops the same.")
+        self.checkbox_transfer_item_drop_to_replacement_monster = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Transfer item drop to replacement monsters"
+        )
+        self.checkbox_transfer_item_drop_to_replacement_monster.SetToolTip(
+            "If checked, then the monsters that replace each boss will drop the same items as the boss monster. Useful for keeping player spell book drops the same."
+        )
         self.checkbox_transfer_item_drop_to_replacement_monster.Enable(False)
         self.checkbox_transfer_item_drop_to_replacement_monster.SetValue(1)
-        self.state.monsters.transfer_boss_item_drops = self.checkbox_transfer_item_drop_to_replacement_monster.GetValue() == 1
-        grid_sizer_3.Add(self.checkbox_transfer_item_drop_to_replacement_monster, 0, 0, 0)
+        self.state.monsters.transfer_boss_item_drops = (
+            self.checkbox_transfer_item_drop_to_replacement_monster.GetValue() == 1
+        )
+        grid_sizer_3.Add(
+            self.checkbox_transfer_item_drop_to_replacement_monster, 0, 0, 0
+        )
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
 
-        self.checkbox_monsters_include_starters = wx.CheckBox(self.monsters_tab, wx.ID_ANY, "Include starters")
-        self.checkbox_monsters_include_starters.SetToolTip("If checked, randomizes starters along with other encounters.")
+        self.checkbox_monsters_include_starters = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Include starters"
+        )
+        self.checkbox_monsters_include_starters.SetToolTip(
+            "If checked, randomizes starters along with other encounters."
+        )
         self.checkbox_monsters_include_starters.SetValue(1)
-        self.state.monsters.include_starters = self.checkbox_monsters_include_starters.GetValue() == 1
+        self.state.monsters.include_starters = (
+            self.checkbox_monsters_include_starters.GetValue() == 1
+        )
         grid_sizer_5.Add(self.checkbox_monsters_include_starters, 0, 0, 0)
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
 
-        self.checkbox_monsters_include_gift_monsters = wx.CheckBox(self.monsters_tab, wx.ID_ANY, "Include gift monsters")
-        self.checkbox_monsters_include_gift_monsters.SetToolTip("If checked, randomizes gifted monsters along with other encounters.")
+        self.checkbox_monsters_include_gift_monsters = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Include gift monsters"
+        )
+        self.checkbox_monsters_include_gift_monsters.SetToolTip(
+            "If checked, randomizes gifted monsters along with other encounters."
+        )
         self.checkbox_monsters_include_gift_monsters.SetValue(1)
-        self.state.monsters.include_gift_monsters = self.checkbox_monsters_include_gift_monsters.GetValue() == 1
+        self.state.monsters.include_gift_monsters = (
+            self.checkbox_monsters_include_gift_monsters.GetValue() == 1
+        )
         grid_sizer_5.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
 
         self.skill_sets_tab = wx.Panel(self.notebook_1, wx.ID_ANY)
@@ -129,10 +167,16 @@ class Main(wx.Frame):
         grid_sizer_4 = wx.FlexGridSizer(1, 1, 0, 0)
         sizer_3.Add(grid_sizer_4, 1, wx.ALL | wx.EXPAND, 10)
 
-        self.checkbox_randomize_skill_sets = wx.CheckBox(self.skill_sets_tab, wx.ID_ANY, "Randomize skill sets")
-        self.checkbox_randomize_skill_sets.SetToolTip("If checked, randomizes aspects of skill sets.")
+        self.checkbox_randomize_skill_sets = wx.CheckBox(
+            self.skill_sets_tab, wx.ID_ANY, "Randomize skill sets"
+        )
+        self.checkbox_randomize_skill_sets.SetToolTip(
+            "If checked, randomizes aspects of skill sets."
+        )
         self.checkbox_randomize_skill_sets.SetValue(1)
-        self.state.skill_sets.randomize = self.checkbox_randomize_skill_sets.GetValue() == 1
+        self.state.skill_sets.randomize = (
+            self.checkbox_randomize_skill_sets.GetValue() == 1
+        )
         grid_sizer_4.Add(self.checkbox_randomize_skill_sets, 0, 0, 0)
 
         self.button_1 = wx.Button(self.panel_1, wx.ID_ANY, "Randomize!")
@@ -149,12 +193,36 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_monsters_randomize, self.checkbox_randomize_monsters)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_monsters_include_bosses, self.checkbox_monsters_include_bosses)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_ter_im_drop_to_rep_mon, self.checkbox_transfer_item_drop_to_replacement_monster)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_monsters_include_starters, self.checkbox_monsters_include_starters)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_mon_include_gift_monsters, self.checkbox_monsters_include_gift_monsters)
-        self.Bind(wx.EVT_CHECKBOX, self.changed_skill_sets_randomize, self.checkbox_randomize_skill_sets)
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_randomize,
+            self.checkbox_randomize_monsters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_include_bosses,
+            self.checkbox_monsters_include_bosses,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_ter_im_drop_to_rep_mon,
+            self.checkbox_transfer_item_drop_to_replacement_monster,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_monsters_include_starters,
+            self.checkbox_monsters_include_starters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_include_gift_monsters,
+            self.checkbox_monsters_include_gift_monsters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_skill_sets_randomize,
+            self.checkbox_randomize_skill_sets,
+        )
         self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
 
