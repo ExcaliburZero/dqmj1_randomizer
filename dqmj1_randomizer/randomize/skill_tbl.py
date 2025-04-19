@@ -7,12 +7,13 @@ from typing import IO, Callable, TypeVar, cast
 
 import pandas as pd
 
+from dqmj1_randomizer.randomize.regions import Region
 from dqmj1_randomizer.state import State
 
 NUM_SKILL_SETS = 194
 SKILL_SETS_OFFSET = 8
-SKILL_SET_SIZE_IN_BYTES = 240
-SKILL_TABLE_FILE_SIZE_IN_BYTES = 46568
+SKILL_SET_SIZE_IN_BYTES_NA_EU = 240
+SKILL_SET_SIZE_IN_BYTES_JP = 220
 
 NUM_SKILLS_PER_SKILL_SET = 10
 SKILLS_OFFSET = 44
@@ -97,36 +98,48 @@ class SkillSet(Byteable):
 @dataclass
 class SkillSetTable(Byteable):
     raw: bytearray
-
-    def __post_init__(self) -> None:
-        if len(self.raw) != SKILL_TABLE_FILE_SIZE_IN_BYTES:
-            logging.warning(
-                f"Skill table file size is {len(self.raw)} which is different from the expected size of {SKILL_TABLE_FILE_SIZE_IN_BYTES}."
-            )
+    region: Region
 
     @property
     def skill_sets(self) -> list[SkillSet]:
-        return extract_data_bytes(
-            all_bytes=self.raw,
-            offset=SKILL_SETS_OFFSET,
-            data_size=SKILL_SET_SIZE_IN_BYTES,
-            num_data=NUM_SKILL_SETS,
-            constructor=lambda b: SkillSet(b),
-        )
+        if self.region == Region.Japan:
+            return extract_data_bytes(
+                all_bytes=self.raw,
+                offset=SKILL_SETS_OFFSET,
+                data_size=SKILL_SET_SIZE_IN_BYTES_JP,
+                num_data=NUM_SKILL_SETS,
+                constructor=lambda b: SkillSet(b),
+            )
+        else:
+            return extract_data_bytes(
+                all_bytes=self.raw,
+                offset=SKILL_SETS_OFFSET,
+                data_size=SKILL_SET_SIZE_IN_BYTES_NA_EU,
+                num_data=NUM_SKILL_SETS,
+                constructor=lambda b: SkillSet(b),
+            )
 
     @skill_sets.setter
     def skill_sets(self, new_skill_sets: list[SkillSet]) -> None:
         assert len(new_skill_sets) == NUM_SKILL_SETS
-        set_data_bytes(
-            all_bytes=self.raw,
-            offset=SKILL_SETS_OFFSET,
-            data_size=SKILL_SET_SIZE_IN_BYTES,
-            data=new_skill_sets,
-        )
+        if self.region == Region.Japan:
+            set_data_bytes(
+                all_bytes=self.raw,
+                offset=SKILL_SETS_OFFSET,
+                data_size=SKILL_SET_SIZE_IN_BYTES_JP,
+                data=new_skill_sets,
+            )
+        else:
+            set_data_bytes(
+                all_bytes=self.raw,
+                offset=SKILL_SETS_OFFSET,
+                data_size=SKILL_SET_SIZE_IN_BYTES_NA_EU,
+                data=new_skill_sets,
+            )
 
     @staticmethod
-    def from_bin(input_stream: IO[bytes]) -> "SkillSetTable":
-        return SkillSetTable(bytearray(input_stream.read()))
+    def from_bin(input_stream: IO[bytes], region: Region) -> "SkillSetTable":
+        return SkillSetTable(raw=bytearray(input_stream.read()), region=region)
 
     def write_bin(self, output_stream: IO[bytes]) -> None:
         output_stream.write(self.raw)

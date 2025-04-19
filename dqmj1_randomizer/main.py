@@ -12,6 +12,7 @@ from typing import Any
 import wx  # type: ignore
 
 from dqmj1_randomizer.randomize.randomize import RandomizationException, randomize
+from dqmj1_randomizer.randomize.regions import Region
 from dqmj1_randomizer.setup_logging import setup_logging
 from dqmj1_randomizer.state import State
 
@@ -71,6 +72,34 @@ class Main(wx.Frame):
         self.input_seed.SetValue(str(random.randint(0, (2**32) - 1)))
         self.state.seed = int(self.input_seed.GetValue())
         grid_sizer_1.Add(self.input_seed, 0, 0, 0)
+
+        grid_sizer_6 = wx.FlexGridSizer(1, 3, 0, 0)
+        sizer_1.Add(grid_sizer_6, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+
+        region = wx.StaticText(self.panel_1, wx.ID_ANY, "Region")
+        region.SetFont(
+            wx.Font(
+                9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""
+            )
+        )
+        region.SetToolTip(
+            "Region the original ROM was released in. Some of the game's internal file formats differ slightly between regions."
+        )
+        grid_sizer_6.Add(region, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+        grid_sizer_6.Add((10, 0), 0, 0, 0)
+
+        self.radio_box_region = wx.RadioBox(
+            self.panel_1,
+            wx.ID_ANY,
+            "",
+            choices=["North America", "Europe", "Japan"],
+            majorDimension=1,
+            style=wx.RA_SPECIFY_ROWS,
+        )
+        self.radio_box_region.SetSelection(0)
+        self.state.region = Region(self.radio_box_region.GetSelection())
+        grid_sizer_6.Add(self.radio_box_region, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
         self.notebook_1 = wx.Notebook(self.panel_1, wx.ID_ANY)
         sizer_1.Add(self.notebook_1, 1, wx.ALL | wx.EXPAND, 10)
@@ -193,6 +222,7 @@ class Main(wx.Frame):
         self.Bind(wx.EVT_TEXT, self.changed_original_rom, self.input_original_rom)
         self.Bind(wx.EVT_BUTTON, self.select_original_rom, self.OriginalRomBrowse)
         self.Bind(wx.EVT_TEXT, self.changed_seed, self.input_seed)
+        self.Bind(wx.EVT_RADIOBOX, self.changed_region, self.radio_box_region)
         self.Bind(
             wx.EVT_CHECKBOX,
             self.changed_monsters_randomize,
@@ -354,6 +384,14 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.skill_sets.randomize = raw_value == 1
+
+    def changed_region(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.radio_box_region.GetSelection()
+        logging.info(f"User set region: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.region = Region(raw_value)
+        logging.info(f"Region is now: {Region(raw_value)}")
 
 
 # end of class Main
