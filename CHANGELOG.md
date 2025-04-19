@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-04-19
+
 ### Added
 
 - "Region" radio buttons to configure the region-specific logic the randomizer uses to work with the ROM. (#11, #12)
