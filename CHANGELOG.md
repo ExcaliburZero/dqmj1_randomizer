@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- "Randomize skill sets" option. (#6)
+- "Randomize skill sets" option. (#6, #10)
 - "Randomize monsters" option to allow disabling monster randomization.
 
 ## [0.3.1] - 2025-04-18
