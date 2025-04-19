@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- "Region" radio buttons to configure the region-specific logic the randomizer uses to work with the ROM. (#11, #12)
+
+### Fixed
+
+- Skill set randomization for the Japanese version of the game. (#11, #12)
+
 ## [0.4.0] - 2025-04-18
 
 ### Added

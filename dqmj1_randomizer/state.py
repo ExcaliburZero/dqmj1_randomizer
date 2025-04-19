@@ -2,6 +2,8 @@ import pathlib
 from dataclasses import dataclass, field
 from typing import Optional
 
+from dqmj1_randomizer.randomize.regions import Region
+
 
 @dataclass
 class Monsters:
@@ -21,5 +23,6 @@ class SkillSets:
 class State:
     original_rom: Optional[pathlib.Path] = None
     seed: Optional[int] = None
+    region: Region = Region.NorthAmerica
     monsters: Monsters = field(default_factory=lambda: Monsters())
     skill_sets: SkillSets = field(default_factory=lambda: SkillSets())

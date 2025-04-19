@@ -116,7 +116,7 @@ def randomize_skill_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
         raise FailedToFindExpectedRomSubFile("SkillTbl.bin", "skill sets") from e
 
     input_stream = io.BytesIO(original_data)
-    skill_sets = SkillSetTable.from_bin(input_stream)
+    skill_sets = SkillSetTable.from_bin(input_stream, region=state.region)
 
     shuffle_skill_tbl(state, data, skill_sets)
 
