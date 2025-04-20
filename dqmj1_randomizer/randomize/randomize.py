@@ -161,7 +161,8 @@ def randomize_dialogue(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
                 dialogue_strings.append(entry.arguments[0])
 
     # Shuffle the strings
-    random.shuffle(dialogue_strings)
+    # random.shuffle(dialogue_strings)
+    dialogue_strings = ["" for _ in dialogue_strings]
 
     # Apply the shuffled strings
     i = 0
@@ -171,8 +172,14 @@ def randomize_dialogue(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
                 isinstance(entry, Instruction)
                 and entry.instruction_type.name == "SetDialog"
             ):
-                entry.arguments[0] = dialogue_strings[i]
+                # entry.arguments[0] = dialogue_strings[i]
+                # entry.instruction_type.type_id = 0xAA  # NopAA
                 i += 1
+            elif (
+                isinstance(entry, Instruction)
+                and entry.instruction_type.name == "ShowDialog"
+            ):
+                entry.instruction_type.type_id = 0xAA  # NopAA
 
     for filename, script in scripts.items():
         output_stream = io.BytesIO()
