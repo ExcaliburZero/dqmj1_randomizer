@@ -1,18 +1,18 @@
 Id,Name,Arguments,Notes
 0x00,"Nop0","[]",
-0x01,"Cmd_0x01","[Bytes]",TODO: figure out arguments
+0x01,"UNUSED_0x01","[Bytes]",
 0x02,"Exit","[U32]",Argument seems to be unused and is always 0x0
-0x03,"Cmd_0x03","[Bytes]",TODO: figure out arguments
-0x04,"Cmd_0x04","[Bytes]",TODO: figure out arguments
-0x05,"Cmd_0x05","[Bytes]",TODO: figure out arguments
-0x06,"Cmd_0x06","[Bytes]",TODO: figure out arguments
-0x07,"Cmd_0x07","[Bytes]",TODO: figure out arguments
-0x08,"Cmd_0x08","[Bytes]",TODO: figure out arguments
-0x09,"JumpKeepBackPointer","[U32]",
+0x03,"UNUSED_0x03","[Bytes]",
+0x04,"UNUSED_0x04","[Bytes]",
+0x05,"UNUSED_0x05","[Bytes]",
+0x06,"UNUSED_0x06","[Bytes]",
+0x07,"UNUSED_0x07","[Bytes]",
+0x08,"UNUSED_0x08","[Bytes]",
+0x09,"JumpKeepBackPointer","[InstructionLocation]",
 0x0A,"StartEvent","[InstructionLocation, U32]",
 0x0B,"Cmd_0x0B","[ValueLocation, U32]",
 0x0C,"Jump","[InstructionLocation]",
-0x0D,"Cmd_0x0D","[Bytes]",TODO: figure out arguments
+0x0D,"JumpIfFalse","[InstructionLocation]",TODO: confirm this is indeed a "true" check. Which commands change that flag/value?
 0x0E,"JumpIfTrue","[InstructionLocation]",TODO: confirm this is indeed a "true" check. Which commands change that flag/value?
 0x0F,"SetFlagFalse","[ValueLocation, U32, ValueLocation, U32]",Parameters appear to have no effect
 0x10,"SetFlagTrue","[ValueLocation, U32, ValueLocation, U32]",Parameters appear to have no effect
