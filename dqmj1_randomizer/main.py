@@ -208,8 +208,27 @@ class Main(wx.Frame):
         )
         grid_sizer_4.Add(self.checkbox_randomize_skill_sets, 0, 0, 0)
 
+        self.other_tab = wx.Panel(self.notebook_1, wx.ID_ANY)
+        self.notebook_1.AddPage(self.other_tab, "Other")
+
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
+
+        grid_sizer_7 = wx.FlexGridSizer(1, 1, 0, 0)
+        sizer_4.Add(grid_sizer_7, 1, wx.ALL | wx.EXPAND, 10)
+
+        self.checkbox_remove_dialogue = wx.CheckBox(
+            self.other_tab, wx.ID_ANY, "Remove dialogue"
+        )
+        self.checkbox_remove_dialogue.SetToolTip(
+            "If checked, all non-choice dialogue boxes will be removed. This makes it easier to get through cutscenes quickly."
+        )
+        self.state.other.remove_dialogue = self.checkbox_remove_dialogue.GetValue() == 1
+        grid_sizer_7.Add(self.checkbox_remove_dialogue, 0, 0, 0)
+
         self.button_1 = wx.Button(self.panel_1, wx.ID_ANY, "Randomize!")
         sizer_1.Add(self.button_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 10)
+
+        self.other_tab.SetSizer(sizer_4)
 
         self.skill_sets_tab.SetSizer(sizer_3)
 
@@ -252,6 +271,9 @@ class Main(wx.Frame):
             wx.EVT_CHECKBOX,
             self.changed_skill_sets_randomize,
             self.checkbox_randomize_skill_sets,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX, self.changed_remove_dialogue, self.checkbox_remove_dialogue
         )
         self.Bind(wx.EVT_BUTTON, self.create_output_rom, self.button_1)
         # end wxGlade
@@ -392,6 +414,13 @@ class Main(wx.Frame):
         assert isinstance(raw_value, int)
         self.state.region = Region(raw_value)
         logging.info(f"Region is now: {Region(raw_value)}")
+
+    def changed_remove_dialogue(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_remove_dialogue.GetValue()
+        logging.info(f"User set remove dialogue: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.other.remove_dialogue = raw_value == 1
 
 
 # end of class Main

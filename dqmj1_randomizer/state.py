@@ -20,9 +20,15 @@ class SkillSets:
 
 
 @dataclass
+class Other:
+    remove_dialogue: bool = False
+
+
+@dataclass
 class State:
     original_rom: Optional[pathlib.Path] = None
     seed: Optional[int] = None
     region: Region = Region.NorthAmerica
     monsters: Monsters = field(default_factory=lambda: Monsters())
     skill_sets: SkillSets = field(default_factory=lambda: SkillSets())
+    other: Other = field(default_factory=lambda: Other())
