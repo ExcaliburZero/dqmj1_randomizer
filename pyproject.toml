@@ -1,6 +1,6 @@
 [project]
 name = "dqmj1_randomizer"
-version = "0.4.1"
+version = "0.5.0"
 dependencies = ["wxPython", "ndspy", "pandas", "pyinstaller"]
 
 [project.optional-dependencies]
