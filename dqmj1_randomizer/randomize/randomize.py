@@ -8,6 +8,8 @@ import pandas as pd
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import shuffle_btl_enmy_prm
+from dqmj1_randomizer.randomize.character_encoding import CHARACTER_ENCODINGS
+from dqmj1_randomizer.randomize.evt import Event, Instruction, InstructionType, Script
 from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tbl
 from dqmj1_randomizer.state import State
 
@@ -53,6 +55,9 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
 
     if state.skill_sets.randomize:
         randomize_skill_tbl(state, rom)
+
+    if state.other.remove_dialogue:
+        remove_dialogue(state, rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
@@ -125,3 +130,37 @@ def randomize_skill_tbl(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
 
     rom.setFileByName(filepath, output_stream.getvalue())
     logging.info(f"Successfully updated: {filepath}")
+
+
+def remove_dialogue(state: State, rom: ndspy.rom.NintendoDSRom) -> None:
+    character_encoding = CHARACTER_ENCODINGS["North America / Europe"]
+
+    # Load event files
+    scripts: dict[str, Script] = {}
+    logging.info("Loading event files.")
+    for filename in rom.filenames.files:
+        if not filename.endswith(".evt"):
+            continue
+
+        input_stream = io.BytesIO(rom.getFileByName(filename))
+        event = Event.from_evt(input_stream, character_encoding=character_encoding)
+
+        scripts[filename] = event.to_script(character_encoding)
+
+    # Replace ShowDialogue commands with Nop's of the same size
+    for _, script in scripts.items():
+        for entry in script.entries:
+            if (
+                isinstance(entry, Instruction)
+                and entry.instruction_type.name == "ShowDialog"
+            ):
+                entry.instruction_type.type_id = 0xAA  # NopAA
+
+    # Write the updated events to the ROM
+    for filename, script in scripts.items():
+        output_stream = io.BytesIO()
+        script.to_event(character_encoding).write_evt(output_stream, character_encoding)
+
+        rom.setFileByName(filename, output_stream.getbuffer())
+
+    logging.info(f"Successfully updated {len(scripts)} event files.")
