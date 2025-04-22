@@ -778,7 +778,7 @@ id,is_boss,is_starter,is_unused_starter,is_gift_monster,is_scout_monster,is_gift
 776,,,,,,,,
 777,,,,,,,,
 778,,,,,,,,
-779,y,,,,,,,
+779,y,,,,,,,y
 780,,,,,,,,
 781,,,,,,,,
 782,,,,,,,,
@@ -851,7 +851,7 @@ id,is_boss,is_starter,is_unused_starter,is_gift_monster,is_scout_monster,is_gift
 849,,,,,,,,
 850,,,,,,,y,
 851,y,,,,,,,
-852,y,,,,,,,
+852,y,,,,,,,y
 853,y,,,,,,,
 854,,,,,,,,
 855,y,,,,,,,
