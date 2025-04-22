@@ -6,17 +6,15 @@
 import logging
 import pathlib
 import random
-import traceback
-from typing import Any
+from typing import Any, Optional
 
 import wx  # type: ignore
+from pubsub import pub  # type: ignore
 
-from dqmj1_randomizer.randomize.randomize import RandomizationException, randomize
 from dqmj1_randomizer.randomize.regions import Region
+from dqmj1_randomizer.randomize_thread import RandomizeThread
 from dqmj1_randomizer.setup_logging import setup_logging
 from dqmj1_randomizer.state import State
-
-GITHUB_ISSUES_URL = "https://github.com/ExcaliburZero/dqmj1_randomizer/issues"
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -29,7 +27,15 @@ class Main(wx.Frame):
     def __init__(self, *args: Any, **kwds: Any) -> None:
         # begin wxGlade: Main.__init__
         setup_logging(pathlib.Path("log.txt"))
+        self.progress_dialog = None
+        self.last_step_completed: Optional[int] = None
         self.state = State()
+        pub.subscribe(self._on_randomize_start, "randomize.start")
+        pub.subscribe(self._on_randomize_num_steps, "randomize.num_steps")
+        pub.subscribe(self._on_randomize_progress, "randomize.progress")
+        pub.subscribe(self._on_randomize_successful, "randomize.successful")
+        pub.subscribe(self._on_randomize_failed, "randomize.failed")
+
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((532, 328))
@@ -319,34 +325,9 @@ class Main(wx.Frame):
                 return
 
             output_rom_filepath = pathlib.Path(file_dialog.GetPath())
-            try:
-                randomize(self.state, output_rom_filepath)
 
-                wx.MessageBox(
-                    f"Successfully wrote randomized ROM to: {output_rom_filepath}",
-                    "Success",
-                    wx.OK | wx.ICON_INFORMATION,
-                )
-            except RandomizationException as e:
-                logging.exception(e)
-                logging.error(
-                    f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
-                )
-                wx.MessageBox(
-                    f"Failed to generate randomized ROM\n\n{e.msg}",
-                    "Failure",
-                    wx.OK | wx.ICON_ERROR,
-                )
-            except Exception as e:
-                logging.exception(e)
-                logging.error(
-                    f"Failed to generate randomized ROM and write it to: {output_rom_filepath}"
-                )
-                wx.MessageBox(
-                    f"Failed to properly generate randomized ROM due to unknown error\n\nPlease report this error to the developer: {GITHUB_ISSUES_URL}\n\n{traceback.format_exc()}",
-                    "Failure",
-                    wx.OK | wx.ICON_ERROR,
-                )
+        randomize_thread = RandomizeThread(self.state, output_rom_filepath)
+        randomize_thread.start()
 
     def changed_monsters_randomize(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_randomize_monsters.GetValue()
@@ -421,6 +402,62 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.other.remove_dialogue = raw_value == 1
+
+    def _on_randomize_start(self) -> None:
+        self.last_step_completed = 0
+        wx.CallAfter(self._open_progress_dialog)
+
+    def _open_progress_dialog(self) -> None:
+        self.progress_dialog = wx.ProgressDialog(
+            "Generating randomized ROM",
+            "Generation of randomized ROM is currently in progress.",
+            parent=self,
+        )
+
+    def _on_randomize_num_steps(self, num_steps: int) -> None:
+        wx.CallAfter(lambda: self._set_num_steps(num_steps))
+
+    def _set_num_steps(self, num_steps: int) -> None:
+        if self.progress_dialog is not None:
+            self.progress_dialog.SetRange(num_steps)
+
+    def _on_randomize_progress(self) -> None:
+        wx.CallAfter(self._progress)
+
+    def _progress(self) -> None:
+        if self.progress_dialog is not None and self.last_step_completed is not None:
+            self.last_step_completed += 1
+            self.progress_dialog.Update(self.last_step_completed)
+
+    def _on_randomize_successful(self, message: str) -> None:
+        self.last_step_completed = None
+        wx.CallAfter(self._close_progress_dialog)
+        wx.CallAfter(self._open_success_dialog, message=message)
+
+    def _open_success_dialog(self, message: str) -> None:
+        wx.MessageBox(
+            message,
+            "Success",
+            wx.OK | wx.ICON_INFORMATION,
+            parent=self,
+        )
+
+    def _on_randomize_failed(self, message: str) -> None:
+        self.last_step_completed = None
+        wx.CallAfter(self._close_progress_dialog)
+        wx.CallAfter(self._open_failure_dialog, message=message)
+
+    def _close_progress_dialog(self) -> None:
+        if self.progress_dialog is not None:
+            self.progress_dialog.Update(self.progress_dialog.GetRange())
+
+    def _open_failure_dialog(self, message: str) -> None:
+        wx.MessageBox(
+            message,
+            "Failure",
+            wx.OK | wx.ICON_ERROR,
+            parent=self,
+        )
 
 
 # end of class Main
