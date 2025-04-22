@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2025-04-21
+
 ### Added
 
 - Progress bar window to make it clear to the user that long randomization runs are making progress. (#15)
