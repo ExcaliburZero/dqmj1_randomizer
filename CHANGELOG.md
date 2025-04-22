@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Progress bar window to make it clear to the user that long randomization runs are making progress. (#15)
 
+### Fixed
+
+- Estark boss and Black Dragon mini-boss not swapping their item drop when randomized. (#16, #17, #18)
+
 ## [0.5.0] - 2025-04-20
 
 ### Added
