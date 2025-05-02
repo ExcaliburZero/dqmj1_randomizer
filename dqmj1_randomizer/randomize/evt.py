@@ -106,8 +106,10 @@ class InstructionType:
 
 
 # Load the instruction type info from csv file
-CURRENT_DIRECTORY = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
-with open(CURRENT_DIRECTORY / ".." / "data" / "event_instructions.csv") as input_stream:
+CURRENT_DIRECTORY = pathlib.Path(os.path.realpath(__file__)).parent
+with (
+    CURRENT_DIRECTORY / ".." / "data" / "event_instructions.csv"
+).open() as input_stream:
     reader = csv.DictReader(input_stream)
     INSTRUCTION_TYPES = [InstructionType.from_dict(line) for line in reader]
 
