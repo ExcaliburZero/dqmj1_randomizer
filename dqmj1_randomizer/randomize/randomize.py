@@ -16,12 +16,12 @@ from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tb
 from dqmj1_randomizer.state import State
 
 
-class RandomizationException(Exception):
+class RandomizationError(Exception):
     def __init__(self, msg: str) -> None:
         self.msg = msg
 
 
-class FailedToFindExpectedRomSubFile(RandomizationException):
+class FailedToFindExpectedRomSubFileError(RandomizationError):
     def __init__(self, filepath: str, description: str) -> None:
         self.msg = f'Failed to find {description} file "{filepath}" in ROM. Make sure the ROM is of Dragon Quest Monsters Joker 1.'
 
@@ -43,17 +43,17 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     original_rom = state.original_rom
 
     if original_rom is None:
-        raise RandomizationException("No original ROM was selected.")
+        raise RandomizationError("No original ROM was selected.")
 
     if not original_rom.exists():
-        raise RandomizationException(f"Original ROM does not exist: {original_rom}")
+        raise RandomizationError(f"Original ROM does not exist: {original_rom}")
 
     logging.info(f"Loading original ROM: {original_rom}")
 
     try:
         rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
     except Exception as e:
-        raise RandomizationException(
+        raise RandomizationError(
             f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom}"
         ) from e
 
@@ -108,7 +108,7 @@ class RandomizeBtlEnmyPrmTbl(Task):
         try:
             original_data = rom.getFileByName(filepath)
         except ValueError as e:
-            raise FailedToFindExpectedRomSubFile(
+            raise FailedToFindExpectedRomSubFileError(
                 "BtlEnmyPrm.bin", "enemy encounters"
             ) from e
 
@@ -147,7 +147,9 @@ class RandomizeSkillTbl(Task):
         try:
             original_data = rom.getFileByName(filepath)
         except ValueError as e:
-            raise FailedToFindExpectedRomSubFile("SkillTbl.bin", "skill sets") from e
+            raise FailedToFindExpectedRomSubFileError(
+                "SkillTbl.bin", "skill sets"
+            ) from e
 
         input_stream = io.BytesIO(original_data)
         skill_sets = SkillSetTable.from_bin(input_stream, region=state.region)

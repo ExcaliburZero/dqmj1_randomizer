@@ -300,9 +300,9 @@ class Instruction:
     def from_script(line: str) -> Optional["Instruction"]:
         # Split on spaces, but ignore spaces in quotes
         # https://stackoverflow.com/questions/2785755/how-to-split-but-ignore-separators-in-quoted-strings-in-python
-        PATTERN = re.compile(r"""((?:[^ "']|"[^"]*"|'[^']*')+)""")
+        pattern = re.compile(r"""((?:[^ "']|"[^"]*"|'[^']*')+)""")
 
-        parts = PATTERN.split(line.strip())
+        parts = pattern.split(line.strip())
         parts = [p for p in parts if len(p.strip()) > 0]
 
         instruction_name = parts[0]
