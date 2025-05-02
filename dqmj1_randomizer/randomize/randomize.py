@@ -113,12 +113,10 @@ class RandomizeBtlEnmyPrmTbl(Task):
             ) from e
 
         start = None
-        entries = []
         input_stream = io.BytesIO(original_data)
         start = input_stream.read(8)
         length = int.from_bytes(start[4:], "little")
-        for _ in range(0, length):
-            entries.append(bytearray(input_stream.read(88)))
+        entries = [bytearray(input_stream.read(88)) for _ in range(0, length)]
 
         shuffle_btl_enmy_prm(state, data, entries)
 
