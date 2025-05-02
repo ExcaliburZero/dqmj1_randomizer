@@ -31,7 +31,6 @@ class Main(wx.Frame):
         self.progress_dialog = None
         self.last_step_completed: Optional[int] = None
         self.state = State()
-        self.randomization_in_progress = False
         pub.subscribe(self._on_randomize_start, "randomize.start")
         pub.subscribe(self._on_randomize_num_steps, "randomize.num_steps")
         pub.subscribe(self._on_randomize_progress, "randomize.progress")
