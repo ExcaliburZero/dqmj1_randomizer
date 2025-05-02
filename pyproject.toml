@@ -22,4 +22,44 @@ allow_untyped_defs = true
 exclude = ["build"]
 
 [tool.ruff.lint]
-select = ["B", "I", "UP", "FURB", "RUF"]
+select = [
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "T10",  # flake8-debugger
+    "ISC",  # flake8-implicit-str-concat
+    "ICN",  # flake8-import-conventions
+    "LOG",  # flake8-logging
+    "G",    # flake8-logging-format
+    "INP",  # flake8-no-pep420
+    "PIE",  # flake8-pie
+    "T20",  # flake8-print
+    "PYI",  # flake8-pyi
+    "Q",    # flake8-quotes
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SLF",  # flake8-self
+    "SIM",  # flake8-simplify
+    "SLOT", # flake8-slots
+    "TID",  # flake8-tidy-imports
+    "TC",   # flake8-type-checking
+    "PTH",  # flake8-use-pathlib
+    "FLY",  # flynt
+    "I",    # isort
+    "PD",   # pandas-vet
+    "N",    # pep8-naming
+    "PERF", # Perflint
+    "UP",   # pyupgrade
+    "FURB", # refurb
+    "RUF",  # Ruff-specific rule
+    "TRY",  # tryceratops
+]
+ignore = [
+    "LOG015",  # `info()` call on root logger
+    "G004",    # Logging statement uses f-string
+    "PIE808",  # Unnecessary `start` argument in `range`
+    "RET505",  # Unnecessary `elif` after `return` statement
+    "RET507",  # Unnecessary `elif` after `continue` statement
+    "TC006",   # Add quotes to type expression in `typing.cast()`
+    "PERF203", # `try`-`except` within a loop incurs performance overhead
+]
