@@ -44,6 +44,8 @@ class ValueLocation(enum.Enum):
         elif self == ValueLocation.Three:
             return "Pool_3"
 
+        raise AssertionError
+
     @staticmethod
     def from_script(name: str) -> "ValueLocation":
         if name == "Pool_0":
