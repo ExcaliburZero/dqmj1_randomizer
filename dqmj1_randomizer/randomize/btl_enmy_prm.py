@@ -46,7 +46,7 @@ def shuffle_btl_enmy_prm(
         f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
     )
 
-    shuffled_entries = [e for e in entries_to_shuffle]
+    shuffled_entries = entries_to_shuffle.copy()
     random.shuffle(shuffled_entries)
 
     num_item_drops_swapped = 0

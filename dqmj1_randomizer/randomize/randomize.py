@@ -16,12 +16,30 @@ from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tb
 from dqmj1_randomizer.state import State
 
 
-class RandomizationException(Exception):
+class RandomizationError(Exception):
     def __init__(self, msg: str) -> None:
+        super().__init__(msg)
         self.msg = msg
 
 
-class FailedToFindExpectedRomSubFile(RandomizationException):
+class NoOriginalRomError(RandomizationError):
+    def __init__(self) -> None:
+        super().__init__("No original ROM was selected.")
+
+
+class OriginalRomDoesNotExistError(RandomizationError):
+    def __init__(self, original_rom_path: pathlib.Path) -> None:
+        super().__init__(f"Original ROM does not exist: {original_rom_path}")
+
+
+class InvalidRomFileFormatError(RandomizationError):
+    def __init__(self, original_rom_path: pathlib.Path) -> None:
+        super().__init__(
+            f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom_path}"
+        )
+
+
+class FailedToFindExpectedRomSubFileError(RandomizationError):
     def __init__(self, filepath: str, description: str) -> None:
         self.msg = f'Failed to find {description} file "{filepath}" in ROM. Make sure the ROM is of Dragon Quest Monsters Joker 1.'
 
@@ -43,19 +61,17 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     original_rom = state.original_rom
 
     if original_rom is None:
-        raise RandomizationException("No original ROM was selected.")
+        raise NoOriginalRomError
 
     if not original_rom.exists():
-        raise RandomizationException(f"Original ROM does not exist: {original_rom}")
+        raise OriginalRomDoesNotExistError(original_rom)
 
     logging.info(f"Loading original ROM: {original_rom}")
 
     try:
         rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
     except Exception as e:
-        raise RandomizationException(
-            f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom}"
-        ) from e
+        raise InvalidRomFileFormatError(original_rom) from e
 
     load_rom_files(rom)
     logging.info("Successfully loaded original ROM.")
@@ -108,17 +124,15 @@ class RandomizeBtlEnmyPrmTbl(Task):
         try:
             original_data = rom.getFileByName(filepath)
         except ValueError as e:
-            raise FailedToFindExpectedRomSubFile(
+            raise FailedToFindExpectedRomSubFileError(
                 "BtlEnmyPrm.bin", "enemy encounters"
             ) from e
 
         start = None
-        entries = []
         input_stream = io.BytesIO(original_data)
         start = input_stream.read(8)
         length = int.from_bytes(start[4:], "little")
-        for _ in range(0, length):
-            entries.append(bytearray(input_stream.read(88)))
+        entries = [bytearray(input_stream.read(88)) for _ in range(0, length)]
 
         shuffle_btl_enmy_prm(state, data, entries)
 
@@ -147,7 +161,9 @@ class RandomizeSkillTbl(Task):
         try:
             original_data = rom.getFileByName(filepath)
         except ValueError as e:
-            raise FailedToFindExpectedRomSubFile("SkillTbl.bin", "skill sets") from e
+            raise FailedToFindExpectedRomSubFileError(
+                "SkillTbl.bin", "skill sets"
+            ) from e
 
         input_stream = io.BytesIO(original_data)
         skill_sets = SkillSetTable.from_bin(input_stream, region=state.region)
@@ -173,7 +189,7 @@ class RemoveDialog(Task):
         character_encoding = CHARACTER_ENCODINGS["North America / Europe"]
 
         # Shuffle the filenames in order to make the progress bar more accurate
-        filenames = [filename for filename in rom.filenames.files]
+        filenames = rom.filenames.files.copy()
         random.shuffle(filenames)
 
         # Load event files

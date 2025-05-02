@@ -19,6 +19,11 @@ STRING_END_PADDING = 0xCC
 LabelDict = dict[str, int]
 
 
+class UnrecognizedValueLocationNameError(ValueError):
+    def __init__(self, name: str) -> None:
+        super().__init__(f'Unrecognized ValueLocation name: "{name}"')
+
+
 class ArgumentType(enum.Enum):
     U32 = enum.auto()
     String = enum.auto()
@@ -35,27 +40,29 @@ class ValueLocation(enum.Enum):
     Three = 3
 
     def to_script(self) -> str:
-        if self == ValueLocation.Zero:
-            return "Pool_0"
-        elif self == ValueLocation.One:
-            return "Pool_1"
-        elif self == ValueLocation.Constant:
-            return "Const"
-        elif self == ValueLocation.Three:
-            return "Pool_3"
+        mapping = {
+            ValueLocation.Zero: "Pool_0",
+            ValueLocation.One: "Pool_1",
+            ValueLocation.Constant: "Const",
+            ValueLocation.Three: "Pool_3",
+        }
+
+        return mapping[self]
 
     @staticmethod
     def from_script(name: str) -> "ValueLocation":
-        if name == "Pool_0":
-            return ValueLocation.Zero
-        elif name == "Pool_1":
-            return ValueLocation.One
-        elif name == "Const":
-            return ValueLocation.Constant
-        elif name == "Pool_3":
-            return ValueLocation.Three
+        mapping = {
+            "Pool_0": ValueLocation.Zero,
+            "Pool_1": ValueLocation.One,
+            "Const": ValueLocation.Constant,
+            "Pool_3": ValueLocation.Three,
+        }
 
-        raise ValueError(f'Unrecognized ValueLocation name: "{name}"')
+        value = mapping.get(name)
+        if value is not None:
+            return value
+        else:
+            raise UnrecognizedValueLocationNameError(name)
 
 
 at = ArgumentType
@@ -104,8 +111,10 @@ class InstructionType:
 
 
 # Load the instruction type info from csv file
-CURRENT_DIRECTORY = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
-with open(CURRENT_DIRECTORY / ".." / "data" / "event_instructions.csv") as input_stream:
+CURRENT_DIRECTORY = pathlib.Path(os.path.realpath(__file__)).parent
+with (
+    CURRENT_DIRECTORY / ".." / "data" / "event_instructions.csv"
+).open() as input_stream:
     reader = csv.DictReader(input_stream)
     INSTRUCTION_TYPES = [InstructionType.from_dict(line) for line in reader]
 
@@ -113,6 +122,60 @@ INSTRUCTION_TYPES_BY_TYPE = {
     cmd_type.type_id: cmd_type for cmd_type in INSTRUCTION_TYPES
 }
 INSTRUCTION_TYPES_BY_NAME = {cmd_type.name: cmd_type for cmd_type in INSTRUCTION_TYPES}
+
+
+class IncorrectInstructionSizeError(ValueError):
+    def __init__(
+        self,
+        instruction: "Instruction",
+        character_encoding: CharacterEncoding,
+        raw: RawInstruction,
+        bs: bytes,
+    ) -> None:
+        super().__init__(
+            f"{instruction.length(character_encoding)} != {len(raw.data) + 8} for instruction: {instruction}\nwritten={[hex(b) for b in bs[8:]]!s}\nraw=    {[hex(b) for b in raw.data]}"
+        )
+
+    @staticmethod
+    def from_data(
+        instruction: "Instruction",
+        character_encoding: CharacterEncoding,
+        raw: RawInstruction,
+    ) -> "IncorrectInstructionSizeError":
+        stream = io.BytesIO()
+        instruction.write_evt(
+            stream, collections.defaultdict(lambda: 0), character_encoding
+        )
+
+        bs = stream.getbuffer()
+        return IncorrectInstructionSizeError(
+            instruction=instruction,
+            character_encoding=character_encoding,
+            raw=raw,
+            bs=bs,
+        )
+
+
+class UnrecognizedInstructionNameError(ValueError):
+    def __init__(self, name: str) -> None:
+        super().__init__(f'Unrecognized instruction: "{name}"')
+
+
+class ScriptInstructionParseIndexError(ValueError):
+    def __init__(self, index: int, parts: list[str]) -> None:
+        super().__init__(f"Failed to parse index {index} in: {parts}")
+
+
+class EvtInstructionParseError(ValueError):
+    def __init__(self, position: int) -> None:
+        super().__init__(f"Failed to parse instruction at: 0x{position:x}")
+
+
+class NotOutputtedScriptLabelsError(ValueError):
+    def __init__(self, unprinted_labels: set[str], position: int) -> None:
+        super().__init__(
+            f"Did not output labels: {', '.join(sorted(unprinted_labels))}\nStopped at: 0x{position:x}"
+        )
 
 
 @dataclass
@@ -146,14 +209,8 @@ class Instruction:
         if results is not None:
             instruction, _ = results
             if instruction.length(character_encoding) != len(raw.data) + 8:
-                stream = io.BytesIO()
-                instruction.write_evt(
-                    stream, collections.defaultdict(lambda: 0), character_encoding
-                )
-
-                bs = stream.getbuffer()
-                raise ValueError(
-                    f"{instruction.length(character_encoding)} != {len(raw.data) + 8} for instruction: {instruction}\nwritten={[hex(b) for b in bs[8:]]!s}\nraw=    {[hex(b) for b in raw.data]}"
+                raise IncorrectInstructionSizeError.from_data(
+                    instruction, character_encoding, raw
                 )
 
         return results
@@ -164,7 +221,7 @@ class Instruction:
         if instruction_name in instructions_by_name:
             return instructions_by_name[instruction_name]
 
-        raise ValueError(f'Unrecognized instruction: "{instruction_name}"')
+        raise UnrecognizedInstructionNameError(instruction_name)
 
     @staticmethod
     def get_instruction_type(instruction_id: int) -> InstructionType:
@@ -187,8 +244,7 @@ class Instruction:
             self.arguments, self.instruction_type.arguments
         ):
             if argument_type == at.Bytes:
-                for b in argument:
-                    data.append(b)
+                data = argument.copy()
             elif argument_type == at.AsciiString:
                 for c in argument:
                     data.append(ord(c))
@@ -285,7 +341,7 @@ class Instruction:
                 arguments.append(label)
                 current += 4
             else:
-                raise AssertionError(f"Unhandled arg type: {argument_type}")
+                raise AssertionError(f"Unhandled arg type: {argument_type}")  # noqa: TRY003
 
         return (
             Instruction(instruction_type=instruction_type, arguments=arguments),
@@ -296,9 +352,9 @@ class Instruction:
     def from_script(line: str) -> Optional["Instruction"]:
         # Split on spaces, but ignore spaces in quotes
         # https://stackoverflow.com/questions/2785755/how-to-split-but-ignore-separators-in-quoted-strings-in-python
-        PATTERN = re.compile(r"""((?:[^ "']|"[^"]*"|'[^']*')+)""")
+        pattern = re.compile(r"""((?:[^ "']|"[^"]*"|'[^']*')+)""")
 
-        parts = PATTERN.split(line.strip())
+        parts = pattern.split(line.strip())
         parts = [p for p in parts if len(p.strip()) > 0]
 
         instruction_name = parts[0]
@@ -314,7 +370,7 @@ class Instruction:
                 else:
                     arguments.append(eval(parts[i + 1]))
             except IndexError as e:
-                raise ValueError(f"Failed to parse index {i + 1} in: {parts}") from e
+                raise ScriptInstructionParseIndexError(i + 1, parts) from e
 
         return Instruction(instruction_type=instruction_type, arguments=arguments)
 
@@ -429,9 +485,7 @@ class Event:
                 result = Instruction.from_evt(input_stream, character_encoding)
             except Exception as e:
                 position = input_stream.tell()
-                raise ValueError(
-                    f"Failed to parse instruction at: 0x{position:x}"
-                ) from e
+                raise EvtInstructionParseError(position) from e
             if result is None:
                 break
 
@@ -483,7 +537,7 @@ class Event:
                 instructions.append(instruction)
                 current_instruction_ptr += instruction.length(character_encoding)
             else:
-                raise AssertionError()
+                raise AssertionError
 
         assert data is not None
         assert isinstance(data, bytes)
@@ -517,9 +571,7 @@ class Event:
         assert len(outputted_labels) == len(set(outputted_labels))
         if len(outputted_labels) != len(self.labels):
             unprinted_labels = set(self.labels) - set(outputted_labels)
-            raise ValueError(
-                f"Did not output labels: {', '.join(sorted(unprinted_labels))}\nStopped at: 0x{position:x}"
-            )
+            raise NotOutputtedScriptLabelsError(unprinted_labels, position)
 
     def write_evt(
         self, output_stream: IO[bytes], character_encoding: CharacterEncoding

@@ -1,4 +1,13 @@
-from typing import Union
+class StringToBytesConversionError(ValueError):
+    def __init__(self, string: str) -> None:
+        super().__init__(f'Failed to convert string to bytes: "{string}"')
+
+
+class BytesToStringConversionError(ValueError):
+    def __init__(self, bs: list[int] | bytes) -> None:
+        super().__init__(
+            f"Failed to convert bytes {[hex(byte) for byte in bs]} to a string."
+        )
 
 
 class CharacterEncoding:
@@ -33,7 +42,7 @@ class CharacterEncoding:
                 matching_bytes = self.__char_to_byte_map[char]
                 string_bytes.extend(matching_bytes)
         except Exception as e:
-            raise ValueError(f'Failed to convert string to bytes: "{string}"') from e
+            raise StringToBytesConversionError(string) from e
 
         string_bytes.append(0xFF)
 
@@ -50,9 +59,7 @@ class CharacterEncoding:
             try:
                 char, i = self.__get_bytes_match(bs, i)
             except Exception as e:
-                raise ValueError(
-                    f"Failed to convert bytes {[hex(byte) for byte in bs]} to a string."
-                ) from e
+                raise BytesToStringConversionError(bs) from e
             chars.append(char)
 
         return "".join(chars)
@@ -81,7 +88,7 @@ class CharacterEncoding:
 
             return matches[0][1], i + offset
         else:
-            raise AssertionError()
+            raise AssertionError
 
 
 BYTE_TO_CHAR_MAP_NA_AND_EU = [
