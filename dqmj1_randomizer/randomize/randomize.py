@@ -18,7 +18,25 @@ from dqmj1_randomizer.state import State
 
 class RandomizationError(Exception):
     def __init__(self, msg: str) -> None:
+        super().__init__(msg)
         self.msg = msg
+
+
+class NoOriginalRomError(RandomizationError):
+    def __init__(self) -> None:
+        super().__init__("No original ROM was selected.")
+
+
+class OriginalRomDoesNotExistError(RandomizationError):
+    def __init__(self, original_rom_path: pathlib.Path) -> None:
+        super().__init__(f"Original ROM does not exist: {original_rom_path}")
+
+
+class InvalidRomFileFormatError(RandomizationError):
+    def __init__(self, original_rom_path: pathlib.Path) -> None:
+        super().__init__(
+            f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom_path}"
+        )
 
 
 class FailedToFindExpectedRomSubFileError(RandomizationError):
@@ -43,19 +61,17 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     original_rom = state.original_rom
 
     if original_rom is None:
-        raise RandomizationError("No original ROM was selected.")
+        raise NoOriginalRomError
 
     if not original_rom.exists():
-        raise RandomizationError(f"Original ROM does not exist: {original_rom}")
+        raise OriginalRomDoesNotExistError(original_rom)
 
     logging.info(f"Loading original ROM: {original_rom}")
 
     try:
         rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
     except Exception as e:
-        raise RandomizationError(
-            f"Original ROM file has invalid format. Make sure it is a properly formatted nds file. {original_rom}"
-        ) from e
+        raise InvalidRomFileFormatError(original_rom) from e
 
     load_rom_files(rom)
     logging.info("Successfully loaded original ROM.")

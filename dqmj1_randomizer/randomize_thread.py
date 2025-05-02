@@ -5,7 +5,7 @@ import traceback
 
 from pubsub import pub  # type: ignore
 
-from dqmj1_randomizer.randomize.randomize import RandomizationException, randomize
+from dqmj1_randomizer.randomize.randomize import RandomizationError, randomize
 from dqmj1_randomizer.state import State
 
 GITHUB_ISSUES_URL = "https://github.com/ExcaliburZero/dqmj1_randomizer/issues"
@@ -28,9 +28,8 @@ class RandomizeThread(threading.Thread):
                 "randomize.successful",
                 message=f"Successfully wrote randomized ROM to: {self.output_rom_filepath}",
             )
-        except RandomizationException as e:
-            logging.exception(e)
-            logging.error(
+        except RandomizationError as e:
+            logging.exception(
                 f"Failed to generate randomized ROM and write it to: {self.output_rom_filepath}"
             )
             pub.sendMessage(
@@ -38,8 +37,7 @@ class RandomizeThread(threading.Thread):
                 message=f"Failed to generate randomized ROM\n\n{e.msg}",
             )
         except Exception as e:
-            logging.exception(e)
-            logging.error(
+            logging.exception(
                 f"Failed to generate randomized ROM and write it to: {self.output_rom_filepath}"
             )
             pub.sendMessage(
