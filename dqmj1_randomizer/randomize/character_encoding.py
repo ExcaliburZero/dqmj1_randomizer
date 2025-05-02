@@ -81,7 +81,7 @@ class CharacterEncoding:
 
             return matches[0][1], i + offset
         else:
-            raise AssertionError()
+            raise AssertionError
 
 
 BYTE_TO_CHAR_MAP_NA_AND_EU = [

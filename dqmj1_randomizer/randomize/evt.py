@@ -483,7 +483,7 @@ class Event:
                 instructions.append(instruction)
                 current_instruction_ptr += instruction.length(character_encoding)
             else:
-                raise AssertionError()
+                raise AssertionError
 
         assert data is not None
         assert isinstance(data, bytes)
