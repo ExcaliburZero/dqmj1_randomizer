@@ -35,29 +35,29 @@ class ValueLocation(enum.Enum):
     Three = 3
 
     def to_script(self) -> str:
-        if self == ValueLocation.Zero:
-            return "Pool_0"
-        elif self == ValueLocation.One:
-            return "Pool_1"
-        elif self == ValueLocation.Constant:
-            return "Const"
-        elif self == ValueLocation.Three:
-            return "Pool_3"
+        mapping = {
+            ValueLocation.Zero: "Pool_0",
+            ValueLocation.One: "Pool_1",
+            ValueLocation.Constant: "Const",
+            ValueLocation.Three: "Pool_3",
+        }
 
-        raise AssertionError
+        return mapping[self]
 
     @staticmethod
     def from_script(name: str) -> "ValueLocation":
-        if name == "Pool_0":
-            return ValueLocation.Zero
-        elif name == "Pool_1":
-            return ValueLocation.One
-        elif name == "Const":
-            return ValueLocation.Constant
-        elif name == "Pool_3":
-            return ValueLocation.Three
+        mapping = {
+            "Pool_0": ValueLocation.Zero,
+            "Pool_1": ValueLocation.One,
+            "Const": ValueLocation.Constant,
+            "Pool_3": ValueLocation.Three,
+        }
 
-        raise ValueError(f'Unrecognized ValueLocation name: "{name}"')
+        value = mapping.get(name)
+        if value is not None:
+            return value
+        else:
+            raise ValueError(f'Unrecognized ValueLocation name: "{name}"')
 
 
 at = ArgumentType
