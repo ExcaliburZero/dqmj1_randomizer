@@ -1,4 +1,5 @@
 log.txt
+/regression_tests/work_dirs
 
 *.bak
 *.ods

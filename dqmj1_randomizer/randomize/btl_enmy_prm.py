@@ -1,11 +1,33 @@
 import copy
 import logging
 import random
-from typing import Callable
+from typing import IO, Callable
 
 import pandas as pd
 
+from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.state import State
+
+
+def randomize_btl_enmy_prm(
+    state: State, input_stream: IO[bytes], output_stream: IO[bytes]
+) -> None:
+    random.seed(state.seed)
+
+    info_filepath = data_path / "btl_enmy_prm_info.csv"
+    logging.info(f"Loading BtlEnmyPrm info file: {info_filepath}")
+    data = pd.read_csv(info_filepath)
+    logging.info("Successfully loaded BtlEnmyPrm info file.")
+
+    start = input_stream.read(8)
+    length = int.from_bytes(start[4:], "little")
+    entries = [bytearray(input_stream.read(88)) for _ in range(0, length)]
+
+    shuffle_btl_enmy_prm(state, data, entries)
+
+    output_stream.write(start)
+    for entry in entries:
+        output_stream.write(entry)
 
 
 def shuffle_btl_enmy_prm(
