@@ -31,6 +31,7 @@ class Main(wx.Frame):
         self.progress_dialog = None
         self.last_step_completed: Optional[int] = None
         self.state = State()
+        self.randomization_in_progress = False
         pub.subscribe(self._on_randomize_start, "randomize.start")
         pub.subscribe(self._on_randomize_num_steps, "randomize.num_steps")
         pub.subscribe(self._on_randomize_progress, "randomize.progress")
@@ -414,6 +415,11 @@ class Main(wx.Frame):
             "Generation of randomized ROM is currently in progress.",
             parent=self,
         )
+
+        # Resolve race condition where the randomization quickly failing could leave the progress
+        # dialog stuck open
+        if self.last_step_completed is None:
+            self._close_progress_dialog()
 
     def _on_randomize_num_steps(self, num_steps: int) -> None:
         wx.CallAfter(lambda: self._set_num_steps(num_steps))
