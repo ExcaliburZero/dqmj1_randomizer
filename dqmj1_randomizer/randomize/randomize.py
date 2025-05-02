@@ -173,7 +173,7 @@ class RemoveDialog(Task):
         character_encoding = CHARACTER_ENCODINGS["North America / Europe"]
 
         # Shuffle the filenames in order to make the progress bar more accurate
-        filenames = [filename for filename in rom.filenames.files]
+        filenames = list(rom.filenames.files)
         random.shuffle(filenames)
 
         # Load event files
