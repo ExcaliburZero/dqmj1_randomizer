@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added regression tests for monster randomization. (#24)
+
 ### Changed
 
 - Resolved more Ruff code linting warnings. (#21)

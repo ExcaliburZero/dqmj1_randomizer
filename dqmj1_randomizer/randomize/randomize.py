@@ -9,7 +9,7 @@ import pandas as pd
 from pubsub import pub  # type: ignore
 
 from dqmj1_randomizer.data import data_path
-from dqmj1_randomizer.randomize.btl_enmy_prm import shuffle_btl_enmy_prm
+from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
 from dqmj1_randomizer.randomize.character_encoding import CHARACTER_ENCODINGS
 from dqmj1_randomizer.randomize.evt import Event, Instruction, InstructionType, Script
 from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tbl
@@ -113,13 +113,6 @@ def load_rom_files(rom: ndspy.rom.NintendoDSRom) -> None:
 
 class RandomizeBtlEnmyPrmTbl(Task):
     def run(self, state: State, rom: ndspy.rom.NintendoDSRom) -> None:
-        random.seed(state.seed)
-
-        info_filepath = data_path / "btl_enmy_prm_info.csv"
-        logging.info(f"Loading BtlEnmyPrm info file: {info_filepath}")
-        data = pd.read_csv(info_filepath)
-        logging.info("Successfully loaded BtlEnmyPrm info file.")
-
         filepath = "BtlEnmyPrm.bin"
         try:
             original_data = rom.getFileByName(filepath)
@@ -128,18 +121,11 @@ class RandomizeBtlEnmyPrmTbl(Task):
                 "BtlEnmyPrm.bin", "enemy encounters"
             ) from e
 
-        start = None
         input_stream = io.BytesIO(original_data)
-        start = input_stream.read(8)
-        length = int.from_bytes(start[4:], "little")
-        entries = [bytearray(input_stream.read(88)) for _ in range(0, length)]
-
-        shuffle_btl_enmy_prm(state, data, entries)
-
         output_stream = io.BytesIO()
-        output_stream.write(start)
-        for entry in entries:
-            output_stream.write(entry)
+        randomize_btl_enmy_prm(
+            state=state, input_stream=input_stream, output_stream=output_stream
+        )
 
         rom.setFileByName(filepath, output_stream.getvalue())
         logging.info(f"Successfully updated: {filepath}")
