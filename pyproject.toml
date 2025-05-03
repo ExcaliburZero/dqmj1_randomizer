@@ -4,7 +4,7 @@ version = "0.5.1"
 dependencies = ["wxPython", "ndspy", "pandas", "pyinstaller", "PyPubSub"]
 
 [project.optional-dependencies]
-test = ["mypy==1.15", "ruff==0.11", "pandas-stubs", "pytest"]
+test = ["mypy==1.15", "ruff==0.11", "pandas-stubs", "pytest", "pytest-cov"]
 
 [tool.setuptools]
 packages = ["dqmj1_randomizer"]

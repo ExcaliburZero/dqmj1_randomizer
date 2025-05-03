@@ -1,6 +1,7 @@
 log.txt
 /regression_tests/work_dirs
 /coverage
+/coverage.xml
 
 *.bak
 *.ods
