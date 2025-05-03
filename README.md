@@ -50,3 +50,13 @@ pip install -e .
 # Run the program
 python dqmj1_randomizer/main.py
 ```
+
+### Running tests
+```bash
+make test
+```
+
+### Updating regression test baselines
+```bash
+make update_baselines
+```
