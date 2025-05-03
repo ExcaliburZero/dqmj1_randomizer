@@ -1,4 +1,4 @@
-.PHONY: compile format lint test create_input_files
+.PHONY: compile format lint test coverage_report update_baselines create_input_files
 
 compile:
 	pyinstaller dqmj1_randomizer/main.py --add-data "dqmj1_randomizer/data:dqmj1_randomizer/data" --noconfirm -n dqmj1_randomizer
@@ -14,6 +14,12 @@ lint:
 
 test:
 	pytest regression_tests
+
+coverage_report:
+	pytest --cov-report=html:coverage --cov=dqmj1_randomizer regression_tests
+
+update_baselines:
+	python -m regression_tests.test_btl_enmy_prm
 
 create_input_files:
 	python scripts/generate_btl_enmy_prm.py \
