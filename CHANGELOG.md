@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed progress bar window not closing if randomization fails quickly. (#22, #23)
+- Fixed randomization of Palaish Isle Spiked Hare and Infern Isle Skeleton Soldiers. (#23, #28)
 
 ## [0.5.1] - 2025-04-21
 
