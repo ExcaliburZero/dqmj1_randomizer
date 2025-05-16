@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `AttributeError` that caused randomization to fail when having dialogue removal enabled. (#31, #32)
+- Fixed log message for the number of script files updated when removing dialogue. (#31, #32)
+
 ## [0.5.2] - 2025-05-07
 
 ### Added
