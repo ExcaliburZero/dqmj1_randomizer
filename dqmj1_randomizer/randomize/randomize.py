@@ -179,7 +179,6 @@ class RemoveDialog(Task):
         random.shuffle(filenames)
 
         # Load event files
-        scripts: dict[str, Script] = {}
         logging.info("Loading event files.")
         for filename in filenames:
             if not filename.endswith(".evt"):
@@ -208,7 +207,7 @@ class RemoveDialog(Task):
 
             pub.sendMessage("randomize.progress")
 
-        logging.info(f"Successfully updated {len(scripts)} event files.")
+        logging.info(f"Successfully updated {len(filenames)} event files.")
         pub.sendMessage("randomize.progress")
 
     def estimate_steps(self, state: State, rom: ndspy.rom.NintendoDSRom) -> int:
