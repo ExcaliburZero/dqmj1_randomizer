@@ -244,7 +244,7 @@ class Instruction:
             self.arguments, self.instruction_type.arguments
         ):
             if argument_type == at.Bytes:
-                data = argument.copy()
+                data = list(argument)
             elif argument_type == at.AsciiString:
                 for c in argument:
                     data.append(ord(c))
