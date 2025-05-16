@@ -1,12 +1,15 @@
 import copy
 import logging
 import random
-from typing import IO, Callable
+from dataclasses import dataclass
+from typing import IO, Callable, Literal
 
 import pandas as pd
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.state import State
+
+ENDIANESS: Literal["little"] = "little"
 
 
 def randomize_btl_enmy_prm(
@@ -96,3 +99,95 @@ def get_item_drop_bytes(entry: bytearray) -> bytes:
 def set_item_drop_bytes(entry: bytearray, item_drop_bytes: bytes) -> None:
     assert len(item_drop_bytes) == 8
     entry[32:40] = item_drop_bytes
+
+
+@dataclass
+class ItemDrop:
+    item_id: int
+    chance_denominator_2_power: int
+
+    @staticmethod
+    def from_bin(input_stream: IO[bytes]) -> "ItemDrop":
+        item_id = int.from_bytes(input_stream.read(2), ENDIANESS)
+        chance_denominator_2_power = int.from_bytes(input_stream.read(2), ENDIANESS)
+
+        return ItemDrop(
+            item_id=item_id, chance_denominator_2_power=chance_denominator_2_power
+        )
+
+
+@dataclass
+class BtlEnmyPrmEntry:
+    species_id: int
+    item_drops: list[ItemDrop]
+    gold: int
+    exp: int
+    level: int
+    max_hp: int
+    max_mp: int
+    attack: int
+    defense: int
+    agility: int
+    wisdom: int
+    skill_set_ids: list[int]
+
+    @staticmethod
+    def from_bin(input_stream: IO[bytes]) -> "BtlEnmyPrmEntry":
+        species_id = int.from_bytes(input_stream.read(2), ENDIANESS)
+
+        input_stream.read(30)
+        item_drops = [
+            ItemDrop.from_bin(input_stream),
+            ItemDrop.from_bin(input_stream),
+        ]
+        gold = int.from_bytes(input_stream.read(2), ENDIANESS)
+        input_stream.read(2)
+        exp = int.from_bytes(input_stream.read(2), ENDIANESS)
+        input_stream.read(2)
+        level = int.from_bytes(input_stream.read(1), ENDIANESS)
+        input_stream.read(1), ENDIANESS
+
+        input_stream.read(2)
+        max_hp = int.from_bytes(input_stream.read(2), ENDIANESS)
+        max_mp = int.from_bytes(input_stream.read(2), ENDIANESS)
+        attack = int.from_bytes(input_stream.read(2), ENDIANESS)
+        defense = int.from_bytes(input_stream.read(2), ENDIANESS)
+        agility = int.from_bytes(input_stream.read(2), ENDIANESS)
+        wisdom = int.from_bytes(input_stream.read(2), ENDIANESS)
+
+        input_stream.read(20)
+        skill_set_ids = [int.from_bytes(input_stream.read(1)) for _ in range(0, 3)]
+
+        input_stream.read(1)
+
+        return BtlEnmyPrmEntry(
+            species_id=species_id,
+            item_drops=item_drops,
+            gold=gold,
+            exp=exp,
+            level=level,
+            max_hp=max_hp,
+            max_mp=max_mp,
+            attack=attack,
+            defense=defense,
+            agility=agility,
+            wisdom=wisdom,
+            skill_set_ids=skill_set_ids,
+        )
+
+
+@dataclass
+class BtlEnmyPrm:
+    entries: list[BtlEnmyPrmEntry]
+
+    @staticmethod
+    def from_bin(input_stream: IO[bytes]) -> "BtlEnmyPrm":
+        int.from_bytes(input_stream.read(4), ENDIANESS)
+        length = int.from_bytes(input_stream.read(4), ENDIANESS)
+
+        entries = [BtlEnmyPrmEntry.from_bin(input_stream) for _ in range(0, length)]
+
+        return BtlEnmyPrm(entries)
+
+    def to_pd(self) -> pd.DataFrame:
+        return pd.DataFrame(self.entries)
