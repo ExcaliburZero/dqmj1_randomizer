@@ -162,6 +162,28 @@ class BtlEnmyPrmEntry:
 
     def write_bin(self, output_stream: IO[bytes]) -> None:
         output_stream.write(self.species_id.to_bytes(2, ENDIANESS))
+        output_stream.write(self.unknown_a)
+        for skill in self.skills:
+            skill.write_bin(output_stream)
+        for item_drop in self.item_drops:
+            item_drop.write_bin(output_stream)
+        output_stream.write(self.gold.to_bytes(2, ENDIANESS))
+        output_stream.write(self.unknown_b)
+        output_stream.write(self.exp.to_bytes(2, ENDIANESS))
+        output_stream.write(self.unknown_c)
+        output_stream.write(self.level.to_bytes(1, ENDIANESS))
+        output_stream.write(self.unknown_d)
+        output_stream.write(self.unknown_e)
+        output_stream.write(self.max_hp.to_bytes(2, ENDIANESS))
+        output_stream.write(self.max_mp.to_bytes(2, ENDIANESS))
+        output_stream.write(self.attack.to_bytes(2, ENDIANESS))
+        output_stream.write(self.defense.to_bytes(2, ENDIANESS))
+        output_stream.write(self.agility.to_bytes(2, ENDIANESS))
+        output_stream.write(self.wisdom.to_bytes(2, ENDIANESS))
+        output_stream.write(self.unknown_f)
+        for skill_set_id in self.skill_set_ids:
+            output_stream.write(skill_set_id.to_bytes(1, ENDIANESS))
+        output_stream.write(self.unknown_g)
 
     @staticmethod
     def from_bin(input_stream: IO[bytes]) -> "BtlEnmyPrmEntry":
@@ -217,6 +239,14 @@ class BtlEnmyPrmEntry:
 @dataclass
 class BtlEnmyPrm:
     entries: list[BtlEnmyPrmEntry]
+
+    def write_bin(self, output_stream: IO[bytes]) -> None:
+        magic = b"\x42\x45\x50\x54"
+
+        output_stream.write(magic)
+        output_stream.write(len(self.entries).to_bytes(4, ENDIANESS))
+        for entry in self.entries:
+            entry.write_bin(output_stream)
 
     @staticmethod
     def from_bin(input_stream: IO[bytes]) -> "BtlEnmyPrm":
