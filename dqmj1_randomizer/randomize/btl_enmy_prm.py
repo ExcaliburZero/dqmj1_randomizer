@@ -22,24 +22,18 @@ def randomize_btl_enmy_prm(
     data = pd.read_csv(info_filepath)
     logging.info("Successfully loaded BtlEnmyPrm info file.")
 
-    start = input_stream.read(8)
-    length = int.from_bytes(start[4:], "little")
-    entries = [bytearray(input_stream.read(88)) for _ in range(0, length)]
-
-    shuffle_btl_enmy_prm(state, data, entries)
-
-    output_stream.write(start)
-    for entry in entries:
-        output_stream.write(entry)
+    btl_enmy_prm = BtlEnmyPrm.from_bin(input_stream)
+    shuffle_btl_enmy_prm(state, data, btl_enmy_prm)
+    btl_enmy_prm.write_bin(output_stream)
 
 
 def shuffle_btl_enmy_prm(
-    state: State, data: pd.DataFrame, entries: list[bytearray]
+    state: State, data: pd.DataFrame, btl_enmy_prm: "BtlEnmyPrm"
 ) -> None:
     # Annotate with the row indices, so that we can use them later when setting the new values.
     # Otherwise we would lose track of the indices because we filter when excluding specific
     # entries from the shuffle.
-    entries_to_shuffle = [(i, entry) for i, entry in enumerate(entries)]
+    entries_to_shuffle = [(i, entry) for i, entry in enumerate(btl_enmy_prm.entries)]
 
     def filter_entries(condition: Callable[[int], bool]) -> None:
         nonlocal entries_to_shuffle
@@ -68,7 +62,7 @@ def shuffle_btl_enmy_prm(
         filter_entries(lambda i: data["is_boss"][i] != "y")
 
     logging.info(
-        f"Filtered down from {len(entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
+        f"Filtered down from {len(btl_enmy_prm.entries)} to {len(entries_to_shuffle)} BtlEnmyPtr entries to randomize."
     )
 
     shuffled_entries = entries_to_shuffle.copy()
@@ -76,29 +70,17 @@ def shuffle_btl_enmy_prm(
 
     num_item_drops_swapped = 0
     for (i, prev_entry), (i_2, new_entry) in zip(entries_to_shuffle, shuffled_entries):
-        entries[i] = copy.copy(new_entry)
+        btl_enmy_prm.entries[i] = copy.copy(new_entry)
 
         if state.monsters.transfer_boss_item_drops and (
             data["swap_drop"][i] == "y" or data["swap_drop"][i_2] == "y"
         ):
-            set_item_drop_bytes(
-                entry=entries[i],
-                item_drop_bytes=get_item_drop_bytes(prev_entry),
-            )
+            btl_enmy_prm.entries[i].item_drops = prev_entry.item_drops
             if data["swap_drop"][i] == "y":
                 num_item_drops_swapped += 1
 
     if state.monsters.transfer_boss_item_drops:
         logging.info(f"Swapped item drops for {num_item_drops_swapped} entries.")
-
-
-def get_item_drop_bytes(entry: bytearray) -> bytes:
-    return entry[32:40]
-
-
-def set_item_drop_bytes(entry: bytearray, item_drop_bytes: bytes) -> None:
-    assert len(item_drop_bytes) == 8
-    entry[32:40] = item_drop_bytes
 
 
 @dataclass
