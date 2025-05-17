@@ -16,7 +16,7 @@ test:
 	pytest unit_tests regression_tests
 
 coverage_report:
-	pytest --cov-report=html:coverage --cov-report=xml:coverage.xml --cov=dqmj1_randomizer regression_tests
+	pytest --cov-report=html:coverage --cov-report=xml:coverage.xml --cov=dqmj1_randomizer unit_tests regression_tests
 
 update_baselines:
 	python -m regression_tests.test_btl_enmy_prm
