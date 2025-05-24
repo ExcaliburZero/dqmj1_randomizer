@@ -6,7 +6,7 @@ import sys
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
 from dqmj1_randomizer.randomize.regions import Region
-from dqmj1_randomizer.state import Monsters, State
+from dqmj1_randomizer.state import FullyRandomMonsterShuffle, Monsters, State
 
 from .util import RegressionTest
 
@@ -26,6 +26,7 @@ class RandomizeMonstersSimplest(RegressionTest):
                 transfer_boss_item_drops=False,
                 include_starters=True,
                 include_gift_monsters=True,
+                randomization_policy=FullyRandomMonsterShuffle(),
             ),
         )
 
@@ -55,6 +56,7 @@ class RandomizeMonstersTransferBossItemDrops(RegressionTest):
                 transfer_boss_item_drops=True,
                 include_starters=True,
                 include_gift_monsters=True,
+                randomization_policy=FullyRandomMonsterShuffle(),
             ),
         )
 
@@ -84,6 +86,7 @@ class RandomizeMonstersExcludeBosses(RegressionTest):
                 transfer_boss_item_drops=False,
                 include_starters=True,
                 include_gift_monsters=True,
+                randomization_policy=FullyRandomMonsterShuffle(),
             ),
         )
 
@@ -113,6 +116,7 @@ class RandomizeMonstersExcludeStarters(RegressionTest):
                 transfer_boss_item_drops=False,
                 include_starters=False,
                 include_gift_monsters=True,
+                randomization_policy=FullyRandomMonsterShuffle(),
             ),
         )
 
@@ -142,6 +146,7 @@ class RandomizeMonstersExcludeGiftMonsters(RegressionTest):
                 transfer_boss_item_drops=False,
                 include_starters=True,
                 include_gift_monsters=False,
+                randomization_policy=FullyRandomMonsterShuffle(),
             ),
         )
 

@@ -1,13 +1,19 @@
+import abc
 import copy
 import logging
 import random
 from dataclasses import dataclass
-from typing import IO, Callable, Literal
+from typing import IO, Callable, Literal, override
 
 import pandas as pd
 
 from dqmj1_randomizer.data import data_path
-from dqmj1_randomizer.state import State
+from dqmj1_randomizer.state import (
+    BiasedByStatTotalMonsterShuffle,
+    FullyRandomMonsterShuffle,
+    MonsterRandomizationPolicyDefinition,
+    State,
+)
 
 ENDIANESS: Literal["little"] = "little"
 
@@ -30,6 +36,10 @@ def randomize_btl_enmy_prm(
 def shuffle_btl_enmy_prm(
     state: State, data: pd.DataFrame, btl_enmy_prm: "BtlEnmyPrm"
 ) -> None:
+    # TODO: remove
+    for entry in btl_enmy_prm.entries:
+        entry.scout_chance = 100
+
     # Annotate with the row indices, so that we can use them later when setting the new values.
     # Otherwise we would lose track of the indices because we filter when excluding specific
     # entries from the shuffle.
@@ -66,11 +76,21 @@ def shuffle_btl_enmy_prm(
     )
 
     shuffled_entries = entries_to_shuffle.copy()
-    random.shuffle(shuffled_entries)
+    if state.monsters.randomization_policy is None:
+        raise AssertionError
+
+    logging.info(
+        f"Randomizing monster encounters using policy: {state.monsters.randomization_policy}"
+    )
+    policy = MonsterRandomizationPolicy.build(state.monsters.randomization_policy)
+    policy.shuffle(shuffled_entries)
 
     num_item_drops_swapped = 0
     for (i, prev_entry), (i_2, new_entry) in zip(entries_to_shuffle, shuffled_entries):
         btl_enmy_prm.entries[i] = copy.copy(new_entry)
+
+        # TODO: remove, testing to find scout chance
+        # btl_enmy_prm.entries[i].unknown_e = b"\x00"
 
         if state.monsters.transfer_boss_item_drops and (
             data["swap_drop"][i] == "y" or data["swap_drop"][i_2] == "y"
@@ -81,6 +101,113 @@ def shuffle_btl_enmy_prm(
 
     if state.monsters.transfer_boss_item_drops:
         logging.info(f"Swapped item drops for {num_item_drops_swapped} entries.")
+
+
+class MonsterRandomizationPolicy(abc.ABC):
+    @abc.abstractmethod
+    def shuffle(self, entries: list[tuple[int, "BtlEnmyPrmEntry"]]) -> None:
+        raise NotImplementedError
+
+    @staticmethod
+    def build(
+        definition: MonsterRandomizationPolicyDefinition,
+    ) -> "MonsterRandomizationPolicy":
+        if isinstance(definition, FullyRandomMonsterShuffle):
+            return FullyRandomShuffle()
+        elif isinstance(definition, BiasedByStatTotalMonsterShuffle):
+            return BiasedByStatTotalShuffle(definition.leniency)
+
+        raise TypeError
+
+
+@dataclass(frozen=True)
+class FullyRandomShuffle(MonsterRandomizationPolicy):
+    @override
+    def shuffle(self, entries: list[tuple[int, "BtlEnmyPrmEntry"]]) -> None:
+        random.shuffle(entries)
+
+
+@dataclass(frozen=True)
+class BiasedByStatTotalShuffle(MonsterRandomizationPolicy):
+    """
+    Performs a random shuffle that biases based on stat totals. The degree of randomness is
+    controlled by a leniency factor which places a hard limit on the stat total change between
+    shuffled encounters.
+
+    Works by treating the random shuffling as a sorting problem. Assigns each encounter a value
+    to use in that sort whereby the value is the stat total (attack + defense + agility + wisdom)
+    plus or minus half of the leniency factor.
+
+    This algorithm ensures that the leniency factor enforces a hard limit on the maximum change in
+    stat total for every encounter, at the cost of low leniency values leading to many encounters
+    staying the same. For example a leniency of 10 means that encounters can only be shuffled with
+    other encounters that are within 10 points of the same stat total.
+
+    For information on some of the considerations and evaluation that went into the design of this
+    approach, see:
+
+        https://github.com/ExcaliburZero/dqmj1_randomizer/issues/29
+    """
+
+    """
+    Factor to apply in biasing the random shuffle. Units are stat points. Higher values indicate
+    more randomness. For example a leniency of 10 means that encounters can only be shuffled with
+    other encounters that are within 10 points of the same stat total (ignoring max hp and max mp).
+    """
+    leniency: int
+
+    @override
+    def shuffle(self, entries: list[tuple[int, "BtlEnmyPrmEntry"]]) -> None:
+        previous_entries = entries.copy()
+
+        # Determine the new ordering
+        weighted_entries = [
+            (i, entry.simple_stat_total, (a, entry))
+            for i, (a, entry) in enumerate(entries)
+        ]
+        weighted_entries.sort(key=lambda a: a[1])
+
+        biased_weighted_entries = [
+            (
+                weight + random.uniform(-self.leniency / 2, self.leniency / 2),
+                entry,
+            )
+            for _, weight, entry in weighted_entries
+        ]
+        biased_weighted_entries.sort(key=lambda a: a[0])
+
+        # Apply the new ordering
+        for k, (_, entry) in enumerate(biased_weighted_entries):
+            entries[weighted_entries[k][0]] = entry
+
+        # Check that we obeyed the hard limit on stat total change
+        num_violations = 0
+        example_violation = None
+        max_abs_diff = 0
+        for (_, before), (_, after) in zip(previous_entries, entries):
+            abs_diff = abs(after.simple_stat_total - before.simple_stat_total)
+            max_abs_diff = max(max_abs_diff, abs_diff)
+            if abs_diff > self.leniency:
+                example_violation = (before, after)
+                num_violations += 1
+
+        if num_violations > 0:
+            if example_violation is None:
+                raise AssertionError
+
+            before, after = example_violation
+
+            logging.warning(
+                f"Found {num_violations} encounter table entries that were swapped with encounters that have more stat difference than expected."
+            )
+            logging.warning(
+                f"For example an encounter with a stat total of {before.simple_stat_total} was swapped with a stat total of {after.simple_stat_total}. {abs(after.simple_stat_total - before.simple_stat_total)} > {self.leniency}"
+            )
+
+        if max_abs_diff == 0:
+            logging.warning(
+                f"The max absolute stat total diff between shuffled encounters was {max_abs_diff}. It's likely the shuffling did not work correctly."
+            )
 
 
 @dataclass
@@ -131,7 +258,8 @@ class BtlEnmyPrmEntry:
     unknown_c: bytes
     level: int
     unknown_d: bytes
-    unknown_e: bytes
+    unknown_e1: int
+    scout_chance: int
     max_hp: int
     max_mp: int
     attack: int
@@ -141,6 +269,10 @@ class BtlEnmyPrmEntry:
     unknown_f: bytes
     skill_set_ids: list[int]
     unknown_g: bytes
+
+    @property
+    def simple_stat_total(self) -> int:
+        return self.attack + self.defense + self.agility + self.wisdom
 
     def write_bin(self, output_stream: IO[bytes]) -> None:
         output_stream.write(self.species_id.to_bytes(2, ENDIANESS))
@@ -155,7 +287,8 @@ class BtlEnmyPrmEntry:
         output_stream.write(self.unknown_c)
         output_stream.write(self.level.to_bytes(1, ENDIANESS))
         output_stream.write(self.unknown_d)
-        output_stream.write(self.unknown_e)
+        output_stream.write(self.unknown_e1.to_bytes(1, ENDIANESS))
+        output_stream.write(self.scout_chance.to_bytes(1, ENDIANESS))
         output_stream.write(self.max_hp.to_bytes(2, ENDIANESS))
         output_stream.write(self.max_mp.to_bytes(2, ENDIANESS))
         output_stream.write(self.attack.to_bytes(2, ENDIANESS))
@@ -181,7 +314,8 @@ class BtlEnmyPrmEntry:
         level = int.from_bytes(input_stream.read(1), ENDIANESS)
         unknown_d = input_stream.read(1)
 
-        unknown_e = input_stream.read(2)
+        unknown_e1 = int.from_bytes(input_stream.read(1), ENDIANESS)
+        scout_chance = int.from_bytes(input_stream.read(1), ENDIANESS)
         max_hp = int.from_bytes(input_stream.read(2), ENDIANESS)
         max_mp = int.from_bytes(input_stream.read(2), ENDIANESS)
         attack = int.from_bytes(input_stream.read(2), ENDIANESS)
@@ -205,7 +339,8 @@ class BtlEnmyPrmEntry:
             unknown_c=unknown_c,
             level=level,
             unknown_d=unknown_d,
-            unknown_e=unknown_e,
+            unknown_e1=unknown_e1,
+            scout_chance=scout_chance,
             max_hp=max_hp,
             max_mp=max_mp,
             attack=attack,

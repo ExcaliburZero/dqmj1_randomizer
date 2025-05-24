@@ -15,7 +15,7 @@ from pubsub import pub  # type: ignore
 from dqmj1_randomizer.randomize.regions import Region
 from dqmj1_randomizer.randomize_thread import RandomizeThread
 from dqmj1_randomizer.setup_logging import setup_logging
-from dqmj1_randomizer.state import State
+from dqmj1_randomizer.state import BiasedByStatTotalMonsterShuffle, State
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -36,6 +36,8 @@ class Main(wx.Frame):
         pub.subscribe(self._on_randomize_progress, "randomize.progress")
         pub.subscribe(self._on_randomize_successful, "randomize.successful")
         pub.subscribe(self._on_randomize_failed, "randomize.failed")
+
+        self.state.monsters.randomization_policy = BiasedByStatTotalMonsterShuffle(50)
 
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)

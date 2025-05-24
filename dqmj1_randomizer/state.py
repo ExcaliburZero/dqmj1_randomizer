@@ -5,6 +5,21 @@ from typing import Optional
 from dqmj1_randomizer.randomize.regions import Region
 
 
+@dataclass(frozen=True)
+class FullyRandomMonsterShuffle:
+    pass
+
+
+@dataclass(frozen=True)
+class BiasedByStatTotalMonsterShuffle:
+    leniency: int
+
+
+MonsterRandomizationPolicyDefinition = (
+    FullyRandomMonsterShuffle | BiasedByStatTotalMonsterShuffle
+)
+
+
 @dataclass
 class Monsters:
     randomize: bool = False
@@ -12,6 +27,7 @@ class Monsters:
     transfer_boss_item_drops: Optional[bool] = None
     include_starters: Optional[bool] = None
     include_gift_monsters: Optional[bool] = None
+    randomization_policy: Optional[MonsterRandomizationPolicyDefinition] = None
 
 
 @dataclass
