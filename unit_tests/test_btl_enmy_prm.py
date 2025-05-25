@@ -81,7 +81,9 @@ class TestBtlEnmyPrmEntry(unittest.TestCase):
             # unknown_d
             b"\x00"
             # unknown_e
-            b"\x00\x00"
+            b"\x00"
+            # scout_chance
+            b"\x05"
             # max_hp
             b"\x05\x00"
             # max_mp
@@ -125,7 +127,8 @@ class TestBtlEnmyPrmEntry(unittest.TestCase):
             unknown_c=b"\x00\x00",
             level=16,
             unknown_d=b"\x00",
-            unknown_e=b"\x00\x00",
+            unknown_e=0,
+            scout_chance=5,
             max_hp=5,
             max_mp=6,
             attack=7,
@@ -160,7 +163,8 @@ class TestBtlEnmyPrmEntry(unittest.TestCase):
             unknown_c=b"\x00\x00",
             level=16,
             unknown_d=b"\x00",
-            unknown_e=b"\x00\x00",
+            unknown_e=0,
+            scout_chance=5,
             max_hp=5,
             max_mp=6,
             attack=7,
@@ -205,7 +209,9 @@ class TestBtlEnmyPrmEntry(unittest.TestCase):
             # unknown_d
             b"\x00"
             # unknown_e
-            b"\x00\x00"
+            b"\x00"
+            # scout_chance
+            b"\x05"
             # max_hp
             b"\x05\x00"
             # max_mp
@@ -262,7 +268,9 @@ class TestBtlEnmyPrm(unittest.TestCase):
             # unknown_d
             b"\x00"
             # unknown_e
-            b"\x00\x00"
+            b"\x00"
+            # scout_chance
+            b"\x05"
             # max_hp
             b"\x05\x00"
             # max_mp
@@ -308,7 +316,8 @@ class TestBtlEnmyPrm(unittest.TestCase):
                     unknown_c=b"\x00\x00",
                     level=16,
                     unknown_d=b"\x00",
-                    unknown_e=b"\x00\x00",
+                    unknown_e=0,
+                    scout_chance=5,
                     max_hp=5,
                     max_mp=6,
                     attack=7,
@@ -347,7 +356,8 @@ class TestBtlEnmyPrm(unittest.TestCase):
                     unknown_c=b"\x00\x00",
                     level=16,
                     unknown_d=b"\x00",
-                    unknown_e=b"\x00\x00",
+                    unknown_e=0,
+                    scout_chance=5,
                     max_hp=5,
                     max_mp=6,
                     attack=7,
@@ -398,7 +408,9 @@ class TestBtlEnmyPrm(unittest.TestCase):
             # unknown_d
             b"\x00"
             # unknown_e
-            b"\x00\x00"
+            b"\x00"
+            # scout_chance
+            b"\x05"
             # max_hp
             b"\x05\x00"
             # max_mp

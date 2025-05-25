@@ -263,7 +263,7 @@ class BtlEnmyPrmEntry:
     unknown_c: bytes
     level: int
     unknown_d: bytes
-    unknown_e1: int
+    unknown_e: int
     scout_chance: int
     max_hp: int
     max_mp: int
@@ -292,7 +292,7 @@ class BtlEnmyPrmEntry:
         output_stream.write(self.unknown_c)
         output_stream.write(self.level.to_bytes(1, ENDIANESS))
         output_stream.write(self.unknown_d)
-        output_stream.write(self.unknown_e1.to_bytes(1, ENDIANESS))
+        output_stream.write(self.unknown_e.to_bytes(1, ENDIANESS))
         output_stream.write(self.scout_chance.to_bytes(1, ENDIANESS))
         output_stream.write(self.max_hp.to_bytes(2, ENDIANESS))
         output_stream.write(self.max_mp.to_bytes(2, ENDIANESS))
@@ -319,7 +319,7 @@ class BtlEnmyPrmEntry:
         level = int.from_bytes(input_stream.read(1), ENDIANESS)
         unknown_d = input_stream.read(1)
 
-        unknown_e1 = int.from_bytes(input_stream.read(1), ENDIANESS)
+        unknown_e = int.from_bytes(input_stream.read(1), ENDIANESS)
         scout_chance = int.from_bytes(input_stream.read(1), ENDIANESS)
         max_hp = int.from_bytes(input_stream.read(2), ENDIANESS)
         max_mp = int.from_bytes(input_stream.read(2), ENDIANESS)
@@ -344,7 +344,7 @@ class BtlEnmyPrmEntry:
             unknown_c=unknown_c,
             level=level,
             unknown_d=unknown_d,
-            unknown_e1=unknown_e1,
+            unknown_e=unknown_e,
             scout_chance=scout_chance,
             max_hp=max_hp,
             max_mp=max_mp,
