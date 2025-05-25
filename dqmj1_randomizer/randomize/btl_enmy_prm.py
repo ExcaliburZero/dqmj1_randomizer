@@ -36,10 +36,6 @@ def randomize_btl_enmy_prm(
 def shuffle_btl_enmy_prm(
     state: State, data: pd.DataFrame, btl_enmy_prm: "BtlEnmyPrm"
 ) -> None:
-    # TODO: remove
-    for entry in btl_enmy_prm.entries:
-        entry.scout_chance = 100
-
     # Annotate with the row indices, so that we can use them later when setting the new values.
     # Otherwise we would lose track of the indices because we filter when excluding specific
     # entries from the shuffle.
@@ -98,6 +94,15 @@ def shuffle_btl_enmy_prm(
             btl_enmy_prm.entries[i].item_drops = prev_entry.item_drops
             if data["swap_drop"][i] == "y":
                 num_item_drops_swapped += 1
+
+        if state.monsters.swap_scout_chance:
+            btl_enmy_prm.entries[i].scout_chance = prev_entry.scout_chance
+
+        if state.monsters.swap_experience_drops:
+            btl_enmy_prm.entries[i].exp = prev_entry.exp
+
+        if state.monsters.swap_gold_drops:
+            btl_enmy_prm.entries[i].gold = prev_entry.gold
 
     if state.monsters.transfer_boss_item_drops:
         logging.info(f"Swapped item drops for {num_item_drops_swapped} entries.")

@@ -27,6 +27,9 @@ class Monsters:
     transfer_boss_item_drops: Optional[bool] = None
     include_starters: Optional[bool] = None
     include_gift_monsters: Optional[bool] = None
+    swap_scout_chance: Optional[bool] = None
+    swap_experience_drops: Optional[bool] = None
+    swap_gold_drops: Optional[bool] = None
     randomization_policy: Optional[MonsterRandomizationPolicyDefinition] = None
 
 

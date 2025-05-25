@@ -41,7 +41,7 @@ class Main(wx.Frame):
 
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((532, 328))
+        self.SetSize((532, 388))
         self.SetTitle("DQMJ1 Unofficial Randomizer")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -131,7 +131,7 @@ class Main(wx.Frame):
         self.state.monsters.randomize = self.checkbox_randomize_monsters.GetValue() == 1
         grid_sizer_2.Add(self.checkbox_randomize_monsters, 0, 0, 0)
 
-        grid_sizer_5 = wx.FlexGridSizer(4, 2, 4, 0)
+        grid_sizer_5 = wx.FlexGridSizer(7, 2, 4, 0)
         grid_sizer_2.Add(grid_sizer_5, 1, wx.ALL | wx.EXPAND, 0)
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
@@ -196,6 +196,48 @@ class Main(wx.Frame):
             self.checkbox_monsters_include_gift_monsters.GetValue() == 1
         )
         grid_sizer_5.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_scout_chance = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap scout chance"
+        )
+        self.checkbox_monsters_swap_scout_chance.SetToolTip(
+            "If checked, swaps the scout chance of encounters. It is good to keep this checked to make arena monsters and boss monsters scoutable if they appear in the wild."
+        )
+        self.checkbox_monsters_swap_scout_chance.SetValue(1)
+        self.state.monsters.swap_scout_chance = (
+            self.checkbox_monsters_swap_scout_chance.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_scout_chance, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_exp_drops = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap experience drops"
+        )
+        self.checkbox_monsters_swap_exp_drops.SetToolTip(
+            "If checked, swaps the experience drop of encounters. It is good to keep this checked to ensure all encounters drop experience."
+        )
+        self.checkbox_monsters_swap_exp_drops.SetValue(1)
+        self.state.monsters.swap_experience_drops = (
+            self.checkbox_monsters_swap_exp_drops.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_exp_drops, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_gold_drops = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap gold drops"
+        )
+        self.checkbox_monsters_swap_gold_drops.SetToolTip(
+            "If checked, swaps the gold drop of encounters. It is good to keep this checked to ensure all encounters drop gold."
+        )
+        self.checkbox_monsters_swap_gold_drops.SetValue(1)
+        self.state.monsters.swap_gold_drops = (
+            self.checkbox_monsters_swap_gold_drops.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_gold_drops, 0, 0, 0)
 
         self.skill_sets_tab = wx.Panel(self.notebook_1, wx.ID_ANY)
         self.notebook_1.AddPage(self.skill_sets_tab, "Skill sets")
@@ -278,6 +320,21 @@ class Main(wx.Frame):
         )
         self.Bind(
             wx.EVT_CHECKBOX,
+            self.changed_mon_swap_scout_chance,
+            self.checkbox_monsters_swap_scout_chance,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_swap_exp_drops,
+            self.checkbox_monsters_swap_exp_drops,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_swap_gold_drops,
+            self.checkbox_monsters_swap_gold_drops,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
             self.changed_skill_sets_randomize,
             self.checkbox_randomize_skill_sets,
         )
@@ -345,11 +402,17 @@ class Main(wx.Frame):
             self.checkbox_monsters_include_bosses.Enable()
             self.checkbox_monsters_include_starters.Enable()
             self.checkbox_monsters_include_gift_monsters.Enable()
+            self.checkbox_monsters_swap_scout_chance.Enable()
+            self.checkbox_monsters_swap_exp_drops.Enable()
+            self.checkbox_monsters_swap_gold_drops.Enable()
         else:
             self.checkbox_monsters_include_bosses.Disable()
             self.checkbox_transfer_item_drop_to_replacement_monster.Disable()
             self.checkbox_monsters_include_starters.Disable()
             self.checkbox_monsters_include_gift_monsters.Disable()
+            self.checkbox_monsters_swap_scout_chance.Disable()
+            self.checkbox_monsters_swap_exp_drops.Disable()
+            self.checkbox_monsters_swap_gold_drops.Disable()
 
     def changed_monsters_include_starters(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_monsters_include_starters.GetValue()
@@ -383,6 +446,27 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.include_gift_monsters = raw_value == 1
+
+    def changed_mon_swap_scout_chance(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_scout_chance.GetValue()
+        logging.info(f"User set swap scout chance: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_scout_chance = raw_value == 1
+
+    def changed_mon_swap_exp_drops(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_exp_drops.GetValue()
+        logging.info(f"User set swap exp drops: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_experience_drops = raw_value == 1
+
+    def changed_mon_swap_gold_drops(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_gold_drops.GetValue()
+        logging.info(f"User set swap gold drops: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_gold_drops = raw_value == 1
 
     def changed_skill_sets_randomize(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_randomize_skill_sets.GetValue()
