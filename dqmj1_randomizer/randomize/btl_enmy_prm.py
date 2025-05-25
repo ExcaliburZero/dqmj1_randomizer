@@ -85,9 +85,6 @@ def shuffle_btl_enmy_prm(
     for (i, prev_entry), (i_2, new_entry) in zip(entries_to_shuffle, shuffled_entries):
         btl_enmy_prm.entries[i] = copy.copy(new_entry)
 
-        # TODO: remove, testing to find scout chance
-        # btl_enmy_prm.entries[i].unknown_e = b"\x00"
-
         if state.monsters.transfer_boss_item_drops and (
             data["swap_drop"][i] == "y" or data["swap_drop"][i_2] == "y"
         ):
