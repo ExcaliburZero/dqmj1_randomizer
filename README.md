@@ -6,7 +6,13 @@ An unofficial randomizer for *Dragon Quest Monsters: Joker 1* for the Nintendo D
 ## Download
 Download the latest release of DQMJ1 Unofficial Randomizer for your operating system at the link below:
 
-https://github.com/ExcaliburZero/dqmj1_randomizer/releases
+1. Go to the [releases page](https://github.com/ExcaliburZero/dqmj1_randomizer/releases)
+2. Under the "Assets" section for the latest release, click on the `.zip` file for your operating system (Windows or Linux)
+3. Extract the file from the `.zip` you downloaded
+4. Double-click on the `.exe` file to run the randomizer
+5. Select your input ROM file by clicking on the "Browse" button
+6. Set the randomization settings you want to use
+7. Click "Randomize!" to generate the randomized ROM
 
 ## Features
 ### Randomization
