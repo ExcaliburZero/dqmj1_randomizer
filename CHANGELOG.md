@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added "Stat total variance" combo box to control the difficulty of the encounter randomization. (#29. #34)
+- Added "Swap scout chance" checkbox to avoid some encounters being unscoutable. (#29. #34)
+- Added "Swap experience drops" checkbox to avoid some encounters not dropping any experience. (#29. #34)
+- Added "Swap gold drops" checkbox to avoid some encounters not dropping any gold. (#29. #34)
+
 ## [0.5.3] - 2025-05-15
 
 ### Fixed

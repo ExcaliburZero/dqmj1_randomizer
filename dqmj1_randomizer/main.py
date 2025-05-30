@@ -15,7 +15,10 @@ from pubsub import pub  # type: ignore
 from dqmj1_randomizer.randomize.regions import Region
 from dqmj1_randomizer.randomize_thread import RandomizeThread
 from dqmj1_randomizer.setup_logging import setup_logging
-from dqmj1_randomizer.state import State
+from dqmj1_randomizer.state import (
+    State,
+    parse_monster_randomization_policy_definition,
+)
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -36,10 +39,9 @@ class Main(wx.Frame):
         pub.subscribe(self._on_randomize_progress, "randomize.progress")
         pub.subscribe(self._on_randomize_successful, "randomize.successful")
         pub.subscribe(self._on_randomize_failed, "randomize.failed")
-
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((532, 328))
+        self.SetSize((532, 408))
         self.SetTitle("DQMJ1 Unofficial Randomizer")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -129,8 +131,45 @@ class Main(wx.Frame):
         self.state.monsters.randomize = self.checkbox_randomize_monsters.GetValue() == 1
         grid_sizer_2.Add(self.checkbox_randomize_monsters, 0, 0, 0)
 
-        grid_sizer_5 = wx.FlexGridSizer(4, 2, 4, 0)
+        grid_sizer_5 = wx.FlexGridSizer(8, 2, 4, 0)
         grid_sizer_2.Add(grid_sizer_5, 1, wx.ALL | wx.EXPAND, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
+        grid_sizer_5.Add(sizer_5, 1, 0, 0)
+
+        label_monsters_stat_total_variance = wx.StaticText(
+            self.monsters_tab, wx.ID_ANY, "Stat total variance / difficulty"
+        )
+        label_monsters_stat_total_variance.SetToolTip(
+            'How much the stat total of encounters can differ from their original when shuffled.\n\nFor example, if set to "Normal (50)" then an encounter with a stat total of 100 will be guarenteed to be replaced with an encounter with a stat total between 50 and 150.\n\nDoes not include Max HP or Max MP in the stat total.\n\nYou can also type in any arbitrary number if you want more detailed tweaking than the suggested values.'
+        )
+        self.label_monsters_stat_total_variance = label_monsters_stat_total_variance
+        sizer_5.Add(label_monsters_stat_total_variance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+        sizer_5.Add((10, 0), 0, 0, 0)
+
+        self.combo_box_monsters_stat_total_variance = wx.ComboBox(
+            self.monsters_tab,
+            wx.ID_ANY,
+            choices=[
+                "Normal (50)",
+                "Harder (200)",
+                "Even Harder (500)",
+                "Fully Random",
+            ],
+            style=wx.CB_DROPDOWN,
+        )
+        self.combo_box_monsters_stat_total_variance.SetSelection(0)
+        self.state.monsters.randomization_policy = (
+            parse_monster_randomization_policy_definition(
+                self.combo_box_monsters_stat_total_variance.GetValue()
+            )
+        )
+        sizer_5.Add(
+            self.combo_box_monsters_stat_total_variance, 0, wx.ALIGN_CENTER_VERTICAL, 0
+        )
 
         grid_sizer_5.Add((20, 0), 0, 0, 0)
 
@@ -153,7 +192,7 @@ class Main(wx.Frame):
         grid_sizer_3.Add((20, 0), 0, 0, 0)
 
         self.checkbox_transfer_item_drop_to_replacement_monster = wx.CheckBox(
-            self.monsters_tab, wx.ID_ANY, "Transfer item drop to replacement monsters"
+            self.monsters_tab, wx.ID_ANY, "Swap item drop with replacement monsters"
         )
         self.checkbox_transfer_item_drop_to_replacement_monster.SetToolTip(
             "If checked, then the monsters that replace each boss will drop the same items as the boss monster. Useful for keeping player spell book drops the same."
@@ -194,6 +233,48 @@ class Main(wx.Frame):
             self.checkbox_monsters_include_gift_monsters.GetValue() == 1
         )
         grid_sizer_5.Add(self.checkbox_monsters_include_gift_monsters, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_scout_chance = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap scout chance"
+        )
+        self.checkbox_monsters_swap_scout_chance.SetToolTip(
+            "If checked, swaps the scout chance of encounters. It is good to keep this checked to make arena monsters and boss monsters scoutable if they appear in the wild."
+        )
+        self.checkbox_monsters_swap_scout_chance.SetValue(1)
+        self.state.monsters.swap_scout_chance = (
+            self.checkbox_monsters_swap_scout_chance.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_scout_chance, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_exp_drops = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap experience drops"
+        )
+        self.checkbox_monsters_swap_exp_drops.SetToolTip(
+            "If checked, swaps the experience drop of encounters. It is good to keep this checked to ensure all encounters drop experience."
+        )
+        self.checkbox_monsters_swap_exp_drops.SetValue(1)
+        self.state.monsters.swap_experience_drops = (
+            self.checkbox_monsters_swap_exp_drops.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_exp_drops, 0, 0, 0)
+
+        grid_sizer_5.Add((20, 0), 0, 0, 0)
+
+        self.checkbox_monsters_swap_gold_drops = wx.CheckBox(
+            self.monsters_tab, wx.ID_ANY, "Swap gold drops"
+        )
+        self.checkbox_monsters_swap_gold_drops.SetToolTip(
+            "If checked, swaps the gold drop of encounters. It is good to keep this checked to ensure all encounters drop gold."
+        )
+        self.checkbox_monsters_swap_gold_drops.SetValue(1)
+        self.state.monsters.swap_gold_drops = (
+            self.checkbox_monsters_swap_gold_drops.GetValue() == 1
+        )
+        grid_sizer_5.Add(self.checkbox_monsters_swap_gold_drops, 0, 0, 0)
 
         self.skill_sets_tab = wx.Panel(self.notebook_1, wx.ID_ANY)
         self.notebook_1.AddPage(self.skill_sets_tab, "Skill sets")
@@ -255,6 +336,16 @@ class Main(wx.Frame):
             self.checkbox_randomize_monsters,
         )
         self.Bind(
+            wx.EVT_COMBOBOX,
+            self.changed_monsters_stat_total_var,
+            self.combo_box_monsters_stat_total_variance,
+        )
+        self.Bind(
+            wx.EVT_TEXT,
+            self.changed_monsters_stat_total_var,
+            self.combo_box_monsters_stat_total_variance,
+        )
+        self.Bind(
             wx.EVT_CHECKBOX,
             self.changed_monsters_include_bosses,
             self.checkbox_monsters_include_bosses,
@@ -273,6 +364,21 @@ class Main(wx.Frame):
             wx.EVT_CHECKBOX,
             self.changed_mon_include_gift_monsters,
             self.checkbox_monsters_include_gift_monsters,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_swap_scout_chance,
+            self.checkbox_monsters_swap_scout_chance,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_swap_exp_drops,
+            self.checkbox_monsters_swap_exp_drops,
+        )
+        self.Bind(
+            wx.EVT_CHECKBOX,
+            self.changed_mon_swap_gold_drops,
+            self.checkbox_monsters_swap_gold_drops,
         )
         self.Bind(
             wx.EVT_CHECKBOX,
@@ -340,14 +446,33 @@ class Main(wx.Frame):
         if raw_value == 1:
             if self.state.monsters.include_bosses:
                 self.checkbox_transfer_item_drop_to_replacement_monster.Enable()
+            self.label_monsters_stat_total_variance.Enable()
+            self.combo_box_monsters_stat_total_variance.Enable()
             self.checkbox_monsters_include_bosses.Enable()
             self.checkbox_monsters_include_starters.Enable()
             self.checkbox_monsters_include_gift_monsters.Enable()
+            self.checkbox_monsters_swap_scout_chance.Enable()
+            self.checkbox_monsters_swap_exp_drops.Enable()
+            self.checkbox_monsters_swap_gold_drops.Enable()
         else:
+            self.label_monsters_stat_total_variance.Disable()
+            self.combo_box_monsters_stat_total_variance.Disable()
             self.checkbox_monsters_include_bosses.Disable()
             self.checkbox_transfer_item_drop_to_replacement_monster.Disable()
             self.checkbox_monsters_include_starters.Disable()
             self.checkbox_monsters_include_gift_monsters.Disable()
+            self.checkbox_monsters_swap_scout_chance.Disable()
+            self.checkbox_monsters_swap_exp_drops.Disable()
+            self.checkbox_monsters_swap_gold_drops.Disable()
+
+    def changed_monsters_stat_total_var(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.combo_box_monsters_stat_total_variance.GetValue()
+        logging.info(f"User set monsters stat total variance: {raw_value}")
+
+        assert isinstance(raw_value, str)
+        self.state.monsters.randomization_policy = (
+            parse_monster_randomization_policy_definition(raw_value)
+        )
 
     def changed_monsters_include_starters(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_monsters_include_starters.GetValue()
@@ -381,6 +506,27 @@ class Main(wx.Frame):
 
         assert isinstance(raw_value, int)
         self.state.monsters.include_gift_monsters = raw_value == 1
+
+    def changed_mon_swap_scout_chance(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_scout_chance.GetValue()
+        logging.info(f"User set swap scout chance: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_scout_chance = raw_value == 1
+
+    def changed_mon_swap_exp_drops(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_exp_drops.GetValue()
+        logging.info(f"User set swap exp drops: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_experience_drops = raw_value == 1
+
+    def changed_mon_swap_gold_drops(self, event):  # wxGlade: Main.<event_handler>
+        raw_value = self.checkbox_monsters_swap_gold_drops.GetValue()
+        logging.info(f"User set swap gold drops: {raw_value}")
+
+        assert isinstance(raw_value, int)
+        self.state.monsters.swap_gold_drops = raw_value == 1
 
     def changed_skill_sets_randomize(self, event):  # wxGlade: Main.<event_handler>
         raw_value = self.checkbox_randomize_skill_sets.GetValue()
