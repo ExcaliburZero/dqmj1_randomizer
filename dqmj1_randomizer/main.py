@@ -142,6 +142,9 @@ class Main(wx.Frame):
         label_1 = wx.StaticText(
             self.monsters_tab, wx.ID_ANY, "Stat total variance / difficulty"
         )
+        label_1.SetToolTip(
+            'How much the stat total of encounters can differ from their original when shuffled.\n\nFor example, if set to "Normal (50)" then an encounter with a stat total of 100 will be guarenteed to be replaced with an encounter with a stat total between 50 and 150.\n\nDoes not include Max HP or Max MP in the stat total.\n\nYou can also type in any arbitrary number if you want more detailed tweaking than the suggested values.'
+        )
         sizer_5.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
         sizer_5.Add((10, 0), 0, 0, 0)
