@@ -139,13 +139,14 @@ class Main(wx.Frame):
         sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
         grid_sizer_5.Add(sizer_5, 1, 0, 0)
 
-        label_1 = wx.StaticText(
+        label_monsters_stat_total_variance = wx.StaticText(
             self.monsters_tab, wx.ID_ANY, "Stat total variance / difficulty"
         )
-        label_1.SetToolTip(
+        label_monsters_stat_total_variance.SetToolTip(
             'How much the stat total of encounters can differ from their original when shuffled.\n\nFor example, if set to "Normal (50)" then an encounter with a stat total of 100 will be guarenteed to be replaced with an encounter with a stat total between 50 and 150.\n\nDoes not include Max HP or Max MP in the stat total.\n\nYou can also type in any arbitrary number if you want more detailed tweaking than the suggested values.'
         )
-        sizer_5.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        self.label_monsters_stat_total_variance = label_monsters_stat_total_variance
+        sizer_5.Add(label_monsters_stat_total_variance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
         sizer_5.Add((10, 0), 0, 0, 0)
 
@@ -445,6 +446,7 @@ class Main(wx.Frame):
         if raw_value == 1:
             if self.state.monsters.include_bosses:
                 self.checkbox_transfer_item_drop_to_replacement_monster.Enable()
+            self.label_monsters_stat_total_variance.Enable()
             self.combo_box_monsters_stat_total_variance.Enable()
             self.checkbox_monsters_include_bosses.Enable()
             self.checkbox_monsters_include_starters.Enable()
@@ -453,6 +455,7 @@ class Main(wx.Frame):
             self.checkbox_monsters_swap_exp_drops.Enable()
             self.checkbox_monsters_swap_gold_drops.Enable()
         else:
+            self.label_monsters_stat_total_variance.Disable()
             self.combo_box_monsters_stat_total_variance.Disable()
             self.checkbox_monsters_include_bosses.Disable()
             self.checkbox_transfer_item_drop_to_replacement_monster.Disable()
