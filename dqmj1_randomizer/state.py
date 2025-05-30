@@ -1,4 +1,5 @@
 import pathlib
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -18,6 +19,19 @@ class BiasedByStatTotalMonsterShuffle:
 MonsterRandomizationPolicyDefinition = (
     FullyRandomMonsterShuffle | BiasedByStatTotalMonsterShuffle
 )
+
+
+def parse_monster_randomization_policy_definition(
+    definition_str: str,
+) -> Optional[MonsterRandomizationPolicyDefinition]:
+    if definition_str == "Fully Random":
+        return FullyRandomMonsterShuffle()
+
+    match = re.search(r"([0-9]+)", definition_str)
+    if match is not None:
+        return BiasedByStatTotalMonsterShuffle(int(match.groups()[0]))
+
+    return None
 
 
 @dataclass
