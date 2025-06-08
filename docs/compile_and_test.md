@@ -3,7 +3,10 @@
 ## Compiling from source
 ### Download source code
 ```bash
-# Download the source code
+# Download the source code for dqmj1_util
+git clone https://github.com/ExcaliburZero/dqmj1_util.git
+
+# Download the source code for the randomizer
 git clone https://github.com/ExcaliburZero/dqmj1_randomizer.git
 cd dqmj1_randomizer
 ```
@@ -25,6 +28,9 @@ conda activate dqmj1_randomizer
 
 ### Building executable 
 ```bash
+# Install dqmj1_util
+pip install -e ../dqmj1_util
+
 # Install the library
 pip install -e .
 
@@ -35,6 +41,9 @@ make compile
 ## Testing
 ### Testing without building executable (faster)
 ```bash
+# Install dqmj1_util
+pip install -e ../dqmj1_util
+
 # Install the library
 pip install -e .
 
