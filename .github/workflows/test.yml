@@ -45,6 +45,16 @@ jobs:
         cache: "pip"
         cache-dependency-path: "pyproject.toml"
 
+    - uses: actions/checkout@v3
+      with:
+        repository: ExcaliburZero/dqmj1_util
+        path: dqmj1_util
+
+    - name: Install dqmj1_util
+      run: |
+        pip install ./dqmj1_util
+        mv dqmj1_util dqmj1_util_ignore
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
