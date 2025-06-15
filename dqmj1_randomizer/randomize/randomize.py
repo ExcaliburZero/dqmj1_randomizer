@@ -6,13 +6,14 @@ import random
 
 import ndspy.rom
 import pandas as pd
+from dqmj1_util.raw import SkillTbl
 from pubsub import pub  # type: ignore
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
 from dqmj1_randomizer.randomize.character_encoding import CHARACTER_ENCODINGS
 from dqmj1_randomizer.randomize.evt import Event, Instruction, InstructionType, Script
-from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tbl
+from dqmj1_randomizer.randomize.skill_tbl import shuffle_skill_tbl
 from dqmj1_randomizer.state import State
 
 
@@ -152,7 +153,7 @@ class RandomizeSkillTbl(Task):
             ) from e
 
         input_stream = io.BytesIO(original_data)
-        skill_sets = SkillSetTable.from_bin(input_stream, region=state.region)
+        skill_sets = SkillTbl.from_bin(input_stream, region=state.region)
 
         shuffle_skill_tbl(state, data, skill_sets)
 

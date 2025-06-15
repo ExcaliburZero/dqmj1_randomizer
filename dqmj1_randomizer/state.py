@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Optional
 
-from dqmj1_randomizer.randomize.regions import Region
+from dqmj1_util import Region
 
 
 @dataclass(frozen=True)

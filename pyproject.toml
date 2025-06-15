@@ -21,6 +21,9 @@ allow_subclassing_any = true
 allow_untyped_defs = true
 exclude = ["build"]
 
+[tool.pyright]
+reportUnnecessaryCast = false
+
 [tool.ruff.lint]
 select = [
     "B",    # flake8-bugbear
