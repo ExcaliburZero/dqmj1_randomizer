@@ -3,16 +3,18 @@ import io
 import logging
 import pathlib
 import random
+import shutil
 
 import ndspy.rom
 import pandas as pd
+from dqmj1_util import GuideData, Region, Rom, write_guide
 from dqmj1_util.raw import SkillTbl
 from pubsub import pub  # type: ignore
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
 from dqmj1_randomizer.randomize.character_encoding import CHARACTER_ENCODINGS
-from dqmj1_randomizer.randomize.evt import Event, Instruction, InstructionType, Script
+from dqmj1_randomizer.randomize.evt import Event, Instruction
 from dqmj1_randomizer.randomize.skill_tbl import shuffle_skill_tbl
 from dqmj1_randomizer.state import State
 
@@ -90,7 +92,7 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     if state.other.remove_dialogue:
         tasks.append(RemoveDialog())
 
-    num_steps = 1
+    num_steps = 2
     for task in tasks:
         num_steps += task.estimate_steps(state, rom)
 
@@ -101,6 +103,10 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
     rom.saveToFile(output_rom_filepath)
+
+    generate_guide(state, output_rom_filepath)
+    pub.sendMessage("randomize.progress")
+
     logging.info("Successfully wrote randomized ROM.")
     pub.sendMessage("randomize.progress")
 
@@ -220,3 +226,30 @@ class RemoveDialog(Task):
             num_tasks += 1
 
         return num_tasks + 1
+
+
+def generate_guide(state: State, rom_filepath: pathlib.Path) -> None:
+    if state.region == Region.Europe:
+        logging.warning(
+            "Guide generation does not currently support Europe release, so skipping."
+        )
+        return
+
+    logging.info(f"Generating guide")
+    guide_directory = rom_filepath.parent / (rom_filepath.stem + "_guide")
+
+    if guide_directory.exists():
+        shutil.rmtree(guide_directory)
+
+    guide_directory.mkdir()
+
+    rom = Rom(rom_filepath, region=state.region)
+
+    guide_data = GuideData(
+        skills=rom.skills,
+        skill_sets=rom.skill_sets,
+        encounters=rom.encounters,
+    )
+
+    write_guide(guide_data, guide_directory)
+    logging.info(f"Successfully wrote guide to: {guide_directory}")
