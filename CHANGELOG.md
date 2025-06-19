@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added guide creation for North America and Japan releases. (#37)
+
+### Changed
+
+- Changed implementation of game data file reading and writing to use `dqmj1_util`.
+
 ## [0.6.0] - 2025-05-30
 
 ### Added
