@@ -72,14 +72,14 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     logging.info(f"Loading original ROM: {original_rom}")
 
     try:
-        rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
+        rom = Rom(original_rom)
     except Exception as e:
         raise InvalidRomFileFormatError(original_rom) from e
 
-    load_rom_files(rom)
+    load_rom_files(rom.rom)
     logging.info("Successfully loaded original ROM.")
 
-    logging.info(f"{len(rom.files)} files found in the original ROM.")
+    logging.info(f"{len(rom.rom.files)} files found in the original ROM.")
 
     tasks: list[Task] = []
 
@@ -94,17 +94,17 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
 
     num_steps = 2
     for task in tasks:
-        num_steps += task.estimate_steps(state, rom)
+        num_steps += task.estimate_steps(state, rom.rom)
 
     pub.sendMessage("randomize.num_steps", num_steps=num_steps)
 
     for task in tasks:
-        task.run(state, rom)
+        task.run(state, rom.rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
-    rom.saveToFile(output_rom_filepath)
+    rom.write(output_rom_filepath)
 
-    generate_guide(state, output_rom_filepath)
+    generate_guide(state, rom, output_rom_filepath)
     pub.sendMessage("randomize.progress")
 
     logging.info("Successfully wrote randomized ROM.")
@@ -228,7 +228,7 @@ class RemoveDialog(Task):
         return num_tasks + 1
 
 
-def generate_guide(state: State, rom_filepath: pathlib.Path) -> None:
+def generate_guide(state: State, rom: Rom, rom_filepath: pathlib.Path) -> None:
     if state.region == Region.Europe:
         logging.warning(
             "Guide generation does not currently support Europe release, so skipping."
@@ -242,8 +242,6 @@ def generate_guide(state: State, rom_filepath: pathlib.Path) -> None:
         shutil.rmtree(guide_directory)
 
     guide_directory.mkdir()
-
-    rom = Rom(rom_filepath, region=state.region)
 
     guide_data = GuideData(
         skills=rom.skills,
