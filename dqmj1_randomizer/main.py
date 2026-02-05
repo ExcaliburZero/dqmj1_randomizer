@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 import wx  # type: ignore
 from dqmj1_util import Region
-from pubsub import pub  # type: ignore
+from pubsub import pub
 
 from dqmj1_randomizer.randomize_thread import RandomizeThread
 from dqmj1_randomizer.setup_logging import setup_logging

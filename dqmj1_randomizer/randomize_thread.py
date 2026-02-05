@@ -3,7 +3,7 @@ import pathlib
 import threading
 import traceback
 
-from pubsub import pub  # type: ignore
+from pubsub import pub
 
 from dqmj1_randomizer.randomize.randomize import RandomizationError, randomize
 from dqmj1_randomizer.state import State

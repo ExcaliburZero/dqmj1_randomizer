@@ -9,7 +9,7 @@ import ndspy.rom
 import pandas as pd
 from dqmj1_util import GuideData, Region, Rom, write_guide
 from dqmj1_util.raw import SkillTbl
-from pubsub import pub  # type: ignore
+from pubsub import pub
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
