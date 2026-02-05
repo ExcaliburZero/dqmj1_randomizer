@@ -3,16 +3,19 @@ import io
 import logging
 import pathlib
 import random
+import shutil
 
 import ndspy.rom
 import pandas as pd
-from pubsub import pub  # type: ignore
+from dqmj1_util import GuideData, Region, Rom, write_guide
+from dqmj1_util.raw import SkillTbl
+from pubsub import pub
 
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
 from dqmj1_randomizer.randomize.character_encoding import CHARACTER_ENCODINGS
-from dqmj1_randomizer.randomize.evt import Event, Instruction, InstructionType, Script
-from dqmj1_randomizer.randomize.skill_tbl import SkillSetTable, shuffle_skill_tbl
+from dqmj1_randomizer.randomize.evt import Event, Instruction
+from dqmj1_randomizer.randomize.skill_tbl import shuffle_skill_tbl
 from dqmj1_randomizer.state import State
 
 
@@ -69,14 +72,14 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     logging.info(f"Loading original ROM: {original_rom}")
 
     try:
-        rom = ndspy.rom.NintendoDSRom.fromFile(original_rom)
+        rom = Rom(original_rom)
     except Exception as e:
         raise InvalidRomFileFormatError(original_rom) from e
 
-    load_rom_files(rom)
+    load_rom_files(rom.rom)
     logging.info("Successfully loaded original ROM.")
 
-    logging.info(f"{len(rom.files)} files found in the original ROM.")
+    logging.info(f"{len(rom.rom.files)} files found in the original ROM.")
 
     tasks: list[Task] = []
 
@@ -89,17 +92,21 @@ def randomize(state: State, output_rom_filepath: pathlib.Path) -> None:
     if state.other.remove_dialogue:
         tasks.append(RemoveDialog())
 
-    num_steps = 1
+    num_steps = 2
     for task in tasks:
-        num_steps += task.estimate_steps(state, rom)
+        num_steps += task.estimate_steps(state, rom.rom)
 
     pub.sendMessage("randomize.num_steps", num_steps=num_steps)
 
     for task in tasks:
-        task.run(state, rom)
+        task.run(state, rom.rom)
 
     logging.info(f"Writing randomized ROM to: {output_rom_filepath}")
-    rom.saveToFile(output_rom_filepath)
+    rom.write(output_rom_filepath)
+
+    generate_guide(state, rom, output_rom_filepath)
+    pub.sendMessage("randomize.progress")
+
     logging.info("Successfully wrote randomized ROM.")
     pub.sendMessage("randomize.progress")
 
@@ -152,7 +159,7 @@ class RandomizeSkillTbl(Task):
             ) from e
 
         input_stream = io.BytesIO(original_data)
-        skill_sets = SkillSetTable.from_bin(input_stream, region=state.region)
+        skill_sets = SkillTbl.from_bin(input_stream, region=state.region)
 
         shuffle_skill_tbl(state, data, skill_sets)
 
@@ -219,3 +226,28 @@ class RemoveDialog(Task):
             num_tasks += 1
 
         return num_tasks + 1
+
+
+def generate_guide(state: State, rom: Rom, rom_filepath: pathlib.Path) -> None:
+    if state.region == Region.Europe:
+        logging.warning(
+            "Guide generation does not currently support Europe release, so skipping."
+        )
+        return
+
+    logging.info(f"Generating guide")
+    guide_directory = rom_filepath.parent / (rom_filepath.stem + "_guide")
+
+    if guide_directory.exists():
+        shutil.rmtree(guide_directory)
+
+    guide_directory.mkdir()
+
+    guide_data = GuideData(
+        skills=rom.skills,
+        skill_sets=rom.skill_sets,
+        encounters=rom.encounters,
+    )
+
+    write_guide(guide_data, guide_directory)
+    logging.info(f"Successfully wrote guide to: {guide_directory}")

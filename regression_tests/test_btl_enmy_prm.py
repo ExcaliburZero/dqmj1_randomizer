@@ -3,9 +3,10 @@ import inspect
 import pathlib
 import sys
 
+from dqmj1_util import Region
+
 from dqmj1_randomizer.data import data_path
 from dqmj1_randomizer.randomize.btl_enmy_prm import randomize_btl_enmy_prm
-from dqmj1_randomizer.randomize.regions import Region
 from dqmj1_randomizer.state import FullyRandomMonsterShuffle, Monsters, State
 
 from .util import RegressionTest

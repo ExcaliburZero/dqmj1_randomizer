@@ -1,7 +1,7 @@
 [project]
 name = "dqmj1_randomizer"
 version = "0.6.0"
-dependencies = ["wxPython", "ndspy", "pandas", "pyinstaller", "PyPubSub"]
+dependencies = ["dqmj1_util", "wxPython", "ndspy", "pandas", "pyinstaller", "PyPubSub"]
 
 [project.optional-dependencies]
 test = ["mypy==1.15", "ruff==0.11", "pandas-stubs", "pytest", "pytest-cov"]
@@ -20,6 +20,9 @@ strict = true
 allow_subclassing_any = true
 allow_untyped_defs = true
 exclude = ["build"]
+
+[tool.pyright]
+reportUnnecessaryCast = false
 
 [tool.ruff.lint]
 select = [
